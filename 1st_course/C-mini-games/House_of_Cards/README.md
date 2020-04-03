@@ -1,8 +1,8 @@
 # House of Cards
 ### Description
 "House of Cards" is a console mini-game which wrote for Windows using Windows API (windows.h).
-This game emulate proccess of playing some gambl as Twenty-One (original) and Blackjack.
-
+This game emulates proccess of playing some gambl as Twenty-One (original) and Blackjack.
+____
 ### Screenshots
 #### Intro
 <img src="img/intro.png">
