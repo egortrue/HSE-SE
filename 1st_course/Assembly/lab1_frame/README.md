@@ -1,10 +1,12 @@
 # The Frame
-### Description
-"The Frame" is a tiny DOS program which wrote on TASM (Turbo Assembler).
+"The Frame" is a tiny DOS program which wrote on TASM (Turbo Assembler).  
+This program prints a frame and displays source name in it using a videobuffer and line-drawing characters.  
 > Language: Russian | Cyrillic (CP 866)
-____
-### Screenshots
-#### Task
+
+## Screenshots
+<div align="center">
+
+#### Task (Russian)
 <img src="img/task.png">
 
 #### Example 1
@@ -12,3 +14,5 @@ ____
 
 #### Example 2
 <img src="img/example2.png">
+
+</div>
