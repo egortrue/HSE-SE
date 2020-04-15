@@ -1,5 +1,4 @@
 # HSE NN Software Engineering
-### Description
 This repository contains some projects which were realized during studying in Higher School of Economics.
 > P.S. In addition, this is my first repository which used for experimental tasks.
 ### Courses
