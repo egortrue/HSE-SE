@@ -1,0 +1,23 @@
+
+FOLDER TREE:
+
+[.\Folder]
+*---[folder1]
+|         *---[folder11]
+|         |         *---how are you.txt <25950 bytes>
+|         *---hi.txt <0 bytes>
+*---[folder2]
+|         *---[folder21]
+|         |         *---test.txt <0 bytes>
+|         *---[folder22]
+|         |         *---test.txt <0 bytes>
+|         *---goodbye.txt <0 bytes>
+|         *---lorem ipsum.txt <61492 bytes>
+*---[folder3]
+|         *---test.txt <0 bytes>
+*---test.txt <0 bytes>
+
+
+VERY BIG FILES (MORE THAN 200 BYTES):
+lorem ipsum.txt
+how are you.txt
