@@ -12,12 +12,13 @@ int main()
 	if (!output) exit(EXIT_FAILURE);
 
 	//========================================================
+	// Preparation
 
 	fprintf(output, "Random Tree:\n");
 	srand(time(0));
-	NODE* root = TreePut(NULL, 100);
+	NODE* root = TreePut(NULL, 30);
 	for (int i = 0; i < 20; i++)
-		TreePut(root, rand() % 200);
+		TreePut(root, rand() % 60);
 
 	int size = 0;
 	TreeSize(root, &size);
@@ -51,6 +52,22 @@ int main()
 	fprintf(output, "size = %d\n\n", long_tree_size);
 	TreePrint(long_tree, 0, output);
 	TreeDestroy(long_tree);
+
+	//========================================================
+	// Task 3
+
+	fprintf(output, "\n=====================================================\n");
+	fprintf(output, "The lowest tree:\n");
+
+	int level = 0;
+	NODE* lowest_tree = NULL;
+	FindLowestTree(root, &lowest_tree, &level, 0);
+
+	fprintf(output, "level = %d\n\n", level);
+	TreePrint(lowest_tree, 0, output);
+	TreeDestroy(lowest_tree);
+
+	//========================================================
 
 	TreeDestroy(root);
 	return 0;

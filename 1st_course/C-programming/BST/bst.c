@@ -109,7 +109,7 @@ NODE* LinearTree(NODE* root, NODE* line, int left)
 		if (left && root->left && !root->right)
 			LinearTree(root->left, line, 1);
 		else if (!left && root->right && !root->left)
-			LinearTree(root->left, line, 0);
+			LinearTree(root->right, line, 0);
 	}
 	return line;
 }
@@ -152,3 +152,40 @@ void FindLongestLinearTree(NODE* root, NODE** long_tree, int* max_size)
 	}
 }
 
+//=============================================================
+// Task 3
+
+NODE* LowestTree(NODE* root, NODE* low)
+{
+	if (root)
+	{
+		low = TreePut(low, root->data);
+		LowestTree(root->left, low);
+		LowestTree(root->right, low);
+	}
+	return low;
+}
+
+void FindLowestTree(NODE* root, NODE** lowest_tree, int* max_level, int level)
+{
+	if (root)
+	{
+		NODE* tmp = LowestTree(root, NULL);
+		int size = 0;
+		TreeSize(tmp, &size);
+
+		if ((size == tmp->data) && (*max_level < level))
+		{
+			TreeDestroy(*lowest_tree);
+			*max_level = level;
+			*lowest_tree = tmp;
+		}
+		else
+		{
+			TreeDestroy(tmp);
+		}
+
+		FindLowestTree(root->left, lowest_tree, max_level, level + 1);
+		FindLowestTree(root->right, lowest_tree, max_level, level + 1);
+	}
+}
