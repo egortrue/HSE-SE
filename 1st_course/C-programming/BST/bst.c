@@ -3,18 +3,6 @@
 
 #include "bst.h"
 
-NODE* TreeCreate(int data)
-{
-	NODE* root = (NODE*)malloc(sizeof(NODE));
-	if (!root) exit(EXIT_FAILURE);
-
-	root->data  = data;
-	root->left  = NULL;
-	root->right = NULL;
-
-	return root;
-}
-
 NODE* TreePut(NODE* root, int data)
 {
 	if (root)
@@ -46,15 +34,66 @@ void TreeDestroy(NODE* root)
 	}
 }
 
-void TreePrint(NODE* root, int level)
+void TreePrint(NODE* root, int level, FILE* output)
 {
 	if (root)
 	{
-		TreePrint(root->right, level + 1);
+		TreePrint(root->right, level + 1, output);
 
-		for (int i = 0; i < level; i++)printf("|    ");
-		printf("|==(%d)\n", root->data);
+		for (int i = 0; i < level; i++) fprintf(output, "|      ");
+		fprintf(output, "|--(%3d)\n", root->data);
 
-		TreePrint(root->left, level + 1);
+		TreePrint(root->left, level + 1, output);
+	}
+}
+
+void TreeSize(NODE* root, int* count)
+{
+	if (root)
+	{
+		if (root->left) TreeSize(root->left, count);
+		if (root->right) TreeSize(root->right, count);
+		(*count)++;
+	}
+}
+
+//=============================================================
+// Task 1:
+NODE* FullTree(NODE* root, NODE* full)
+{
+	if (root) 
+	{
+		full = TreePut(full, root->data);
+		if (root->left && root->right)
+		{ 
+			FullTree(root->right, full);
+			FullTree(root->left, full);
+		}
+	}
+	return full;
+}
+
+
+void FindMaxFullTree(NODE* root, NODE** max_tree, int* max_size)
+{
+	if (root)
+	{
+		NODE* tmp = FullTree(root, NULL);
+		int size = 0;
+		TreeSize(tmp, &size);
+
+		if (*max_size < size)
+		{
+			TreeDestroy(*max_tree);
+			*max_size = size;
+			*max_tree = tmp;
+		}
+		else
+		{
+			TreeDestroy(tmp);
+		}
+
+		FindMaxFullTree(root->left, max_tree, max_size);
+		FindMaxFullTree(root->right, max_tree, max_size);
 	}
 }

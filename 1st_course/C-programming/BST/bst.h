@@ -8,9 +8,12 @@ typedef struct node
 	struct node* right;
 }NODE;
 
-NODE* TreeCreate  (int data);
 NODE* TreePut     (NODE* root, int data);
 void  TreeDestroy (NODE* root);
-void  TreePrint   (NODE* root, int level);
+void  TreePrint   (NODE* root, int level, FILE* output);
+void  TreeSize    (NODE* root, int* count);
+
+// Task 1:
+void FindMaxFullTree (NODE* root, NODE** max_tree, int* max_size);
 
 #endif
