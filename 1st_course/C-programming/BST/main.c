@@ -36,8 +36,22 @@ int main()
 
 	fprintf(output, "size = %d\n\n", full_tree_size);
 	TreePrint(full_tree, 0, output);
-
 	TreeDestroy(full_tree);
+
+	//========================================================
+	// Task 2
+
+	fprintf(output, "\n=====================================================\n");
+	fprintf(output, "The longest linear tree:\n");
+
+	int long_tree_size = 0;
+	NODE* long_tree = NULL;
+	FindLongestLinearTree(root, &long_tree, &long_tree_size);
+
+	fprintf(output, "size = %d\n\n", long_tree_size);
+	TreePrint(long_tree, 0, output);
+	TreeDestroy(long_tree);
+
 	TreeDestroy(root);
 	return 0;
 }

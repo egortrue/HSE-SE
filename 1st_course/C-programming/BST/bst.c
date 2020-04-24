@@ -97,3 +97,58 @@ void FindMaxFullTree(NODE* root, NODE** max_tree, int* max_size)
 		FindMaxFullTree(root->right, max_tree, max_size);
 	}
 }
+
+//=============================================================
+// Task 2
+
+NODE* LinearTree(NODE* root, NODE* line, int left)
+{
+	if (root)
+	{
+		line = TreePut(line, root->data);
+		if (left && root->left && !root->right)
+			LinearTree(root->left, line, 1);
+		else if (!left && root->right && !root->left)
+			LinearTree(root->left, line, 0);
+	}
+	return line;
+}
+
+void FindLongestLinearTree(NODE* root, NODE** long_tree, int* max_size)
+{
+	if (root)
+	{
+		NODE* left = LinearTree(root, NULL, 1);
+		NODE* right = LinearTree(root, NULL, 0);
+
+		int size_left = 0, size_right = 0;
+		TreeSize(left, &size_left);
+		TreeSize(right, &size_right);
+
+		if ((size_left < *max_size) && (size_right < *max_size))
+		{
+			TreeDestroy(left);
+			TreeDestroy(right);
+		}
+		else
+		{
+			TreeDestroy(*long_tree);
+			if (size_left > *max_size)
+			{
+				TreeDestroy(right);	
+				*max_size = size_left;
+				*long_tree = left;
+			}
+			else
+			{
+				TreeDestroy(left);
+				*max_size = size_right;
+				*long_tree = right;
+			}
+		}
+
+		FindLongestLinearTree(root->left, long_tree, max_size);
+		FindLongestLinearTree(root->right, long_tree, max_size);
+	}
+}
+

@@ -16,4 +16,8 @@ void  TreeSize    (NODE* root, int* count);
 // Task 1:
 void FindMaxFullTree (NODE* root, NODE** max_tree, int* max_size);
 
+// Task 2:
+void FindLongestLinearTree(NODE* root, NODE** long_tree, int* size);
+
+
 #endif
