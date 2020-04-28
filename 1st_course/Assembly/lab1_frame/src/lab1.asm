@@ -6,100 +6,60 @@ start:
 jmp begin
     prog_name   DB 80 dup(), '$'
     name_len    DW 0
-    buffer      DB 0, '$'
+    buffer      DB 0
 begin:
     clear_screen
 
 ;==================================================================
 ; name of program in environment --> prog_name
 
-xor BX, BX
-mov CX, 500
-mov SI, 0
-cld
-environment:
-
+    cld ; left -> right
     mov DS, DS:2Ch ; ENVIRONMENT ADDRESS IN PSP
-    lea DI, buffer
+    mov SI, 0      ; begin of env
+    lea DI, buffer ; temp buffer
+
+; read common env information
+    env:
+        xor BX, BX ; len of str
+        str:
+            movsb
+            dec DI
+            inc BX
+            mov	DL, CS:[buffer]
+            cmp DL, 0
+        jne str
+        dec BX
+        cmp BX, 0
+    jne env
+
+; useless counter
     movsb
+    dec DI
+    movsb
+    dec DI
 
-    push SI
-    push DI
+; read program name
+    lea DI, prog_name
+    xor BX, BX
+    name:
+        movsb
+        mov	DL, CS:prog_name[BX]
+        inc BX
+        cmp DL, 0
+    jne name
 
+; restore default DS
     mov AX, CS
     mov DS, AX
+    xor AX, AX
 
-    lea SI, buffer
-    lodsb
-
-    cmp AL, 0 ; first zero (ASCIZ)
-    jne next
-
-    pop DI
-    pop SI
-
-    lea DI, buffer
-    movsb
-
-    push SI
-    push DI
-
-    mov AX, CS
-    mov DS, AX
-
-    lea SI, buffer
-    lodsb
-
-    cmp AL, 0 ; second zero (end of ENVIRONMENT)
-    je exit
-
-    next:
-    pop DI
-    pop SI
-
-    mov AX, CS
-    mov DS, AX
-
-    inc BX
-loop environment
-exit:
-
-mov CX, 50
-xor AX, AX
-
-mov DS, DS:2Ch
-mov SI, BX
-add SI, 4
-lea DI, prog_name
-xor BX, BX
-xor AX, AX
-path:
-    lodsb
-    cmp AL, 0
-    je exit1
-    dec SI
-    movsb
-    inc BX
-loop path
-exit1:
-mov AX, CS
-mov DS, AX
-
-name_len_init:
-    cmp BX, 0
-    je name_len_inited
-    inc name_len
+; lenght of name
     dec BX
-    loop name_len_init
-name_len_inited:
-
+    mov [name_len], BX
 
 ;==================================================================
-; Print text using video-buffer
-    mov AX, 0B800h
-    mov ES, AX
+; PRINT TEXT
 
-    ; common text
     print_letter NewLine
     mov CX, 20
     line1:
@@ -107,7 +67,10 @@ name_len_inited:
     loop line1
     print_message "Работает программа "
 
-    ; program name
+;++++++++++++++++++++++
+; print program name using video-buffer
+    mov AX, 0B800h
+    mov ES, AX
     mov AH, Yellow ; attribut
     lea SI, prog_name
     mov DI, 80*2+78
@@ -119,7 +82,8 @@ name_len_inited:
         stosw
     loop print_text
 
-    ; other text
+;++++++++++++++++++++++
+; print other common text
     print_message ", которая"
     print_letter NewLine
 
@@ -136,7 +100,7 @@ name_len_inited:
     print_message "Нажмите любую клавишу, чтобы выйти..."
 
 ;==================================================================
-; Print frame using video-buffer
+; PRINT FRAME USING VIDEO-BUFFER
 
     xor AX, AX
 animation:
