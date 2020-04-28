@@ -1,20 +1,20 @@
 code_seg segment
-    ASSUME  CS:CODE_SEG,DS:CODE_SEG,ES:CODE_SEG
+    ASSUME CS:CODE_SEG, DS:CODE_SEG, ES:CODE_SEG
 	org 100h
     include macro.asm
 start:
-    jmp begin
+jmp begin
     prog_name   DB 80 dup(), '$'
     name_len    DW 0
     buffer      DB 0, '$'
 begin:
-	clear_screen
+    clear_screen
 
 ;==================================================================
-; To know the name of programm using environment --> prog_name
+; name of program in environment --> prog_name
 
 xor BX, BX
-mov CX, 200
+mov CX, 500
 mov SI, 0
 cld
 environment:
@@ -107,7 +107,7 @@ name_len_inited:
     loop line1
     print_message "Работает программа "
 
-    ; programm name
+    ; program name
     mov AH, Yellow ; attribut
     lea SI, prog_name
     mov DI, 80*2+78
@@ -122,43 +122,45 @@ name_len_inited:
     ; other text
     print_message ", которая"
     print_letter NewLine
+
     mov CX, 20
     line2:
         print_letter Space
     loop line2
-    print_message "выводит данное сообщение !"
 
+    print_message "выводит данное сообщение !"
     print_letter NewLine
     print_letter NewLine
     print_letter NewLine
     print_letter CRet
     print_message "Нажмите любую клавишу, чтобы выйти..."
+
 ;==================================================================
 ; Print frame using video-buffer
 
     xor AX, AX
-    mov AH, 0  ; attribut
 animation:
-    ; width of frame
+; standart width of frame
     mov BX, 62
 
-    ; add more width because of name
+; standart width + width of name
     mov CX, [name_len]
     add CX, CX
     add BX, CX
-    ;esli ne chetnoe chislo
+
+; esli ne chetnoe chislo
     and CX, 1
     cmp CX, 1
     jne not_odd
     inc BX
     not_odd:
 
-    ; smeshenie ot levogo  krai
+; smeshenie ot levogo krai
     mov DI, 18
     add DI, DI
 
 ;++++++++++++++++++++++
-; ASCII corners (ygli)
+; ASCII corners
 
 ; top-left corner
     mov AL, 0C9h
@@ -177,11 +179,10 @@ animation:
     mov ES:[DI+BX + 80*2*3], AX
 
 ;++++++++++++++++++++++
-; vertical lines
+; Vertical lines
     mov CX, 2
     mov AL, 0BAh
 vertical:
-
     add DI, 80*2
     mov ES:[DI], AX     ; left line
     mov ES:[DI+BX], AX  ; right line
@@ -189,29 +190,34 @@ loop vertical
     sub DI, 2*80*2
 
 ;++++++++++++++++++++++
-; horizontal lines
+; Horizontal lines
     mov CX, BX
     sub CX, 2
     mov AL, 0CDh
 horizontal:
-
     add DI, 2
     mov ES:[DI], AX          ; top line
     mov ES:[DI + 80*2*3], AX ; bottom line
     dec CX
-
 loop horizontal
 
 ;++++++++++++++++++++++
-; change color
+; Change color
     inc AH
     and AH, 0Fh
 
 ;++++++++++++++++++++++
-; waiting for animation
-; not yet
+; Waiting for animation
+    mov CX, 15
+wait:
+    push CX
+    mov CX, 0FFFFh
+    loop $
+    pop CX
+loop wait
+
 ;++++++++++++++++++++++
-; jump to animation, while no one char be in input buffer
+; Press button to exit
     push AX
     mov AH, 0Bh
     int 21h

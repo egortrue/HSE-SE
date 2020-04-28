@@ -8,7 +8,7 @@ clear_screen	macro ;  cls
 
 	push AX
 
-	mov AX, 3
+	mov AX, 0003h
 	int 10h
 
 	pop AX
