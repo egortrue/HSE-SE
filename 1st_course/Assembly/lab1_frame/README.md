@@ -13,6 +13,6 @@ This program prints a frame and displays source name in it using a videobuffer a
 <img src="img/example1.png">
 
 #### Example 2
-<img src="img/example2.png">
+<img src="img/example2.gif">
 
 </div>
