@@ -1,4 +1,5 @@
 ;+--------------------------------------------------------------------------
+; 2020 (c) Егор Трухин
 ; Эта TSR программа выводит квадрат с помощью видеобуфера
 ; Чтобы появился квадрат необходимо нажать любую из клавиш управления
 ;
@@ -85,10 +86,10 @@ new_09h PROC far
     cmp CS:choose_key, 4Dh  ; Это скен-код <стрелка вправо>
     je hotkey
 
-
+	; Если не наши клавишы - выход на старый обработчик
     mov CS:choose_key, 0
-    pop  AX
-	popf
+    pop AX
+    popf
     jmp dword ptr CS:[old_09h]
 
 hotkey:
@@ -113,7 +114,7 @@ hotkey:
     ; Обработка нажатой клавишы
     cmp CS:choose_key, 57h  ; Это скен-код <F11>
     jne key_f10
-    cmp CS:box_size, 8
+    cmp CS:box_size, 8 ; максимальный размер: 8 строк на 16 столбцов
     je done1
     inc CS:box_size
     done1:
@@ -122,7 +123,7 @@ hotkey:
     key_f10:
     cmp CS:choose_key, 44h  ; Это скен-код <F10>
     jne key_f9
-    cmp CS:box_size, 1
+    cmp CS:box_size, 1 ; минимальный размер: 1 строка на 2 столбца
     je done2
     dec CS:box_size
     done2:
@@ -137,7 +138,7 @@ hotkey:
     key_up:
     cmp CS:choose_key, 48h  ; Это скен-код <стрелка вверх>
     jne key_down
-    cmp CS:box_pos, 160
+    cmp CS:box_pos, 160  ; если на первой строчке
     jb done3
     sub CS:box_pos, 160
     done3:
@@ -146,7 +147,7 @@ hotkey:
     key_down:
     cmp CS:choose_key, 50h  ; Это скен-код <стрелка вниз>
     jne key_left
-    cmp CS:box_pos, 24*160-1
+    cmp CS:box_pos, 24*160-1 ; если на последней строчке
     ja done4
     add CS:box_pos, 160
     done4:
@@ -339,7 +340,7 @@ check_install:
     mov word ptr old_2Fh+2, ES
 
     ; Установим новый вектор прерывания
-    lea DX, new_2Fh ; Получим нового обработчика
+    lea DX, new_2Fh ; Получим адрес нового обработчика
     mov AX, 252Fh   ; AL - номер прерывания
     int 21h         ; DS:DX - указатель программы обработки прерывания
 
@@ -352,7 +353,7 @@ check_install:
     mov word ptr old_09h+2, ES
 
     ; Установим новый вектор прерывания
-    lea DX, new_09h ; Получим нового обработчика
+    lea DX, new_09h ; Получим адрес нового обработчика
     mov AX, 2509h   ; AL - номер прерывания
     int 21h         ; DS:DX - указатель программы обработки прерывания
 
@@ -360,8 +361,9 @@ check_install:
     lea DX, msg1
     call print
 
-    mov DX, offset boot  ;   оставить программу ...
-    int 27h              ;   ... резидентной и выйти
+	; Оставить программу резидентной и выйти
+    mov DX, offset boot
+    int 27h  
 
 ;===========================================================
 installed:
