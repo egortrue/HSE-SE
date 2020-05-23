@@ -33,8 +33,8 @@ void SendData2Server(int count, int number)
 
 	// Send message
 	char message[1024];
-	sprintf_s(message, (size_t)1024, "<%d client> test %d", number, count);
-	int ret = send(client, message, strlen(message), 0);
+	sprintf_s(message, (size_t)1024, "<%d client> test %d\0", number, count);
+	int ret = send(client, message, strlen(message)+1, 0);
 	if (ret == SOCKET_ERROR)
 	{
 		printf("Can't send message\n");
@@ -43,13 +43,14 @@ void SendData2Server(int count, int number)
 	}
 	printf("Send: %s\nbytes: %d\n\n", message, ret);
 
+
 	// Receive the answer from server
 	ret = SOCKET_ERROR;
 	while (ret == SOCKET_ERROR)
 	{
 		// Receive the text
 		ret = recv(client, message, 1024, 0);
-
+		message[ret] = '\0';
 		if (ret == 0 || ret == WSAECONNRESET)
 		{
 			printf("Connection closed\n");
@@ -65,7 +66,7 @@ void SendData2Server(int count, int number)
 		}
 
 		// Output to local console
-		printf("Recieve: %s\nbytes: %d\n\n", message, ret);
+		printf("Recieve:\n#############\n%s\nbytes: %d\n#############\n\n", message, ret);
 	}
 
 	closesocket(client);
