@@ -2,31 +2,37 @@
 
 FILE* file_log;
 pthread_mutex_t mutex_log;
+pthread_mutex_t mutex_cmd;
 
 int main()
 {
 	WSADATA wsd;
 	if (WSAStartup(MAKEWORD(1, 1), &wsd)) return 1;		
 
-	file_log = FileOpen("data/log.txt", "a");
+	char file_log_path[] = "..\\src\\server\\data\\log.txt";
+	file_log = FileOpen(file_log_path, "a");
 	pthread_mutex_init(&mutex_log, NULL); // Init access switcher for log file 
+	pthread_mutex_init(&mutex_cmd, NULL); // Init access switcher for command line 
 
-	// Create server and thread for its
 	SERVER* server = ServerCreate();
-	pthread_create(&server->thread, NULL, ServerRun, (void*)server);
 
 	// Main server's console cycle
 	while (1)
 	{
 		printf("<server> ");
-		char command[51] = {0};
+		char command[51] = { 0 };
 		gets_s(command, 50);
 
 		if (!strcmp(command, "help"))
 		{
-			printf(" help - list of commands\n");
-			printf("  cls - clear screen\n");
-			printf(" stop - shutdown the server\n");
+			printf("\n");
+			printf("|   help - list of commands\n");
+			printf("|    cls - clear screen\n");
+			printf("| status - show server's status\n");
+			printf("|  start - start the server\n");
+			printf("|   stop - shutdown the server\n");
+			printf("|   exit - destroy the server and exit\n");
+			printf("\n");
 			continue;
 		}
 
@@ -36,18 +42,51 @@ int main()
 			continue;
 		}
 
-		if (!strcmp(command, "stop"))
+		if (!strcmp(command, "status"))
 		{
-			ServerStop(server);
-			ServerDestroy(server);
-			break;
+			if (server->status == started)
+				printf("Server is started\n");
+			else
+				printf("Server is stopped\n");
+			continue;
 		}
 
-		if (strlen(command))
-			printf("Command not found. Use \"help\" to show commands\n");
+		if (!strcmp(command, "start"))
+		{
+			if (server->status == stopped)
+			{
+				pthread_create(&server->thread, NULL, ServerRun, (void*)server);
+				printf("Server is started\n");
+			}
+			else
+				printf("Server already started\n");
+			continue;
+		}
+
+		if (!strcmp(command, "stop"))
+		{
+			if (server->status == started)
+			{
+				ServerStop(server);
+				printf("Server is stopped\n");
+			}
+			else
+				printf("Server already stopped\n");
+			continue;
+		}
+
+		if (!strcmp(command, "exit"))
+			break;
+
+		printf("Command not found. Use \"help\" to show commands\n");
 	}
 
+	ServerStop(server);
+	ServerDestroy(server);
 	pthread_mutex_destroy(&mutex_log); // Destroy access switcher for log file
+	pthread_mutex_destroy(&mutex_cmd); // Destroy access switcher for command line
+
+	_fcloseall();
 	WSACleanup(); // It terminates use of the winsock library (Ws2_32.dll).
 	return 0;
 }
@@ -75,6 +114,7 @@ SERVER* ServerCreate()
 	server->address.sin_family = AF_INET;
 	server->address.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	server->address.sin_port = htons(5510); // server port, must be more than 1024
+	server->status = stopped;
 
 
 	// Bind the socket using the information in the sockaddr structure
@@ -87,7 +127,6 @@ SERVER* ServerCreate()
 	
 
 	// Success
-	printf("Server is started\n");
 	return server;
 }
 
@@ -100,45 +139,47 @@ void* ServerDestroy(SERVER* server)
 	return NULL;
 }
 
-//=================================================================================
 // Server thread
-
 void* ServerRun(void* server_param)
 {
+	// Create a waiting line for 50 clients
 	SERVER* server = (SERVER*)server_param;
+	server->status = started;
+	listen(server->socket, 50); 
 
-	SOCKET client;
-	SOCKADDR_IN client_addr;
-	int client_addr_size = sizeof(client_addr);
-
-	listen(server, 50); // Create a waiting line for 50 clients
 
 	// Server startup time	
-	char time_str_start[100];
-	const time_t time_raw_start = time(NULL);
-	ctime_s(time_str_start, sizeof(time_str_start), &time_raw_start);
-	char border[] = "==============================================\n";
-	char log_time[1000];
-	sprintf_s(log_time, (size_t)1024, "%s\nServer was started at %s\n%s", border, time_str_start, border);
-	LogWrite(log_time);
+	char time_server_start[1000] = {0};
+	strcat(time_server_start, "\n==============================================\n\n");
+	strcat(time_server_start, "Server was started at ");
+	char time_str_server_start[1000] = {0};
+	const time_t time_raw_server_start = time(NULL);
+	ctime_s(time_str_server_start, sizeof(time_str_server_start), &time_raw_server_start);
+	strcat(time_server_start, time_str_server_start);
+	strcat(time_server_start, "\n==============================================\n");
+	LogWrite(time_server_start);
+
 
 	// Listen for incoming connection requests on the server
+	SOCKET client_socket;
+	SOCKADDR_IN client_addr;
+	int client_addr_size = sizeof(client_addr);
 	while (1)
 	{
+		// Is it the time to close the server?
+		pthread_testcancel();
+
 		// Get client data
-		client = accept(server, (SOCKADDR*)&client_addr, &client_addr_size);
-		if (client == INVALID_SOCKET)
+		client_socket = accept(server->socket, (SOCKADDR*)&client_addr, &client_addr_size);
+		if (client_socket == INVALID_SOCKET)
 		{
 			//fprintf(log_file, "Error accept client\n");
 			continue;
 		}
 
-		// Create a thread for this client
-		pthread_t client_thread;
-		pthread_create(&client_thread, NULL, ClientRun, (void*)client);
-		pthread_detach(client_thread);
-
-		pthread_testcancel();
+		CLIENT* client = ClientCreate(client_socket, client_addr);
+		pthread_create(&client->thread, NULL, ClientRun, (void*)client);
+		pthread_detach(client->thread);
 	}
 }
 
@@ -146,15 +187,31 @@ void ServerStop(SERVER* server)
 {
 	if (pthread_cancel(server->thread))
 		pthread_join(server->thread, NULL);
-	server->status = closed;
-	printf("Server is closed\n");
+	server->status = stopped;
 }
 
 //=================================================================================
 
+CLIENT* ClientCreate(SOCKET sock, SOCKADDR_IN sock_addr)
+{
+	CLIENT* client = (CLIENT*)malloc(sizeof(CLIENT));
+	if (!client) exit(EXIT_FAILURE);
+
+	client->socket = sock;
+	client->address = sock_addr;
+
+	return client;
+}
+
+void* ClientDestroy(CLIENT* client)
+{
+	closesocket(client->socket);
+	free(client);
+}
+
 void* ClientRun(void* client_param)
 {
-	SOCKET client = (SOCKET)client_param;
+	CLIENT* client = (CLIENT*)client_param;
 	int data_size;
 
 	// Get the data from client
