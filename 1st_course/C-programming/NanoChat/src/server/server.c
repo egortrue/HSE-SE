@@ -1,8 +1,10 @@
 ﻿#include "server.h"
 
 FILE* file_log;
-pthread_mutex_t mutex_log;
+FILE* file_database;
 pthread_mutex_t mutex_cmd;
+pthread_mutex_t mutex_log;
+pthread_mutex_t mutex_db;
 
 int main()
 {
@@ -11,8 +13,9 @@ int main()
 
 	char file_log_path[] = "..\\src\\server\\data\\log.txt";
 	file_log = FileOpen(file_log_path, "a");
-	pthread_mutex_init(&mutex_log, NULL); // Init access switcher for log file 
 	pthread_mutex_init(&mutex_cmd, NULL); // Init access switcher for command line 
+	pthread_mutex_init(&mutex_log, NULL); // Init access switcher for log file 
+	pthread_mutex_init(&mutex_db,  NULL); // Init access switcher for database file
 
 	SERVER* server = ServerCreate();
 
@@ -83,6 +86,7 @@ int main()
 
 	ServerStop(server);
 	ServerDestroy(server);
+	pthread_mutex_destroy(&mutex_db); // Destroy access switcher for database file
 	pthread_mutex_destroy(&mutex_log); // Destroy access switcher for log file
 	pthread_mutex_destroy(&mutex_cmd); // Destroy access switcher for command line
 
@@ -99,6 +103,13 @@ SERVER* ServerCreate()
 	SERVER* server = (SERVER*)malloc(sizeof(SERVER));
 	if (!server) exit(EXIT_FAILURE);
 
+	server->clients = (CLIENT**)calloc(MAX_CLIENTS_ONLINE, sizeof(CLIENT*));
+	if (!server->clients) exit(EXIT_FAILURE);
+
+	server->status = stopped;
+	server->active_connections = 0;
+	server->clients_online = 0;
+
 
 	// Define the server's socket
 	server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);  // AF_INET - IPv4 address family
@@ -114,7 +125,6 @@ SERVER* ServerCreate()
 	server->address.sin_family = AF_INET;
 	server->address.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	server->address.sin_port = htons(5510); // server port, must be more than 1024
-	server->status = stopped;
 
 
 	// Bind the socket using the information in the sockaddr structure
@@ -172,22 +182,31 @@ void* ServerRun(void* server_param)
 		// Get client data
 		client_socket = accept(server->socket, (SOCKADDR*)&client_addr, &client_addr_size);
 		if (client_socket == INVALID_SOCKET)
-		{
-			//fprintf(log_file, "Error accept client\n");
 			continue;
-		}
 
+		// Create a client and start a thread for work with him
 		CLIENT* client = ClientCreate(client_socket, client_addr);
-		pthread_create(&client->thread, NULL, ClientRun, (void*)client);
+
+		struct _datum { SERVER* server; CLIENT* client };
+		struct _datum* datum = (struct _datum*)malloc(sizeof(struct _datum));
+		datum->client = client;
+		datum->server = server;
+
+		pthread_create(&client->thread, NULL, ClientRun, (void*)datum);
 		pthread_detach(client->thread);
+		printf("\nClient was connected (connection #%d)", ++(server->active_connections));
 	}
+	return NULL;
 }
 
 void ServerStop(SERVER* server)
 {
-	if (pthread_cancel(server->thread))
-		pthread_join(server->thread, NULL);
-	server->status = stopped;
+	if (server->status == started)
+	{
+		if (pthread_cancel(server->thread))
+			pthread_join(server->thread, NULL);
+		server->status = stopped;
+	}
 }
 
 //=================================================================================
@@ -212,31 +231,66 @@ void* ClientDestroy(CLIENT* client)
 void* ClientRun(void* client_param)
 {
 	CLIENT* client = (CLIENT*)client_param;
-	int data_size;
 
-	// Get the data from client
-	char receive[MAX_DATA_SIZE];
-	data_size = recv(client, receive, MAX_DATA_SIZE, 0);
-	if (!data_size || data_size == SOCKET_ERROR)
+	while (1)
 	{
-		LogWrite("Error getting data\n");
-		return (void*)1;
+		printf("a\n");
+		char data_receive[MAX_DATA_SIZE];
+		int data_size = recv(client->socket, data_receive, MAX_DATA_SIZE, 0);
+		if (data_size <= 0)
+			return NULL;
+
+		// Enter in the system
+		if (strstr(data_receive, "<__signin__>"))
+		{
+
+		}
+
+		// Exit the system
+		if (strstr(data_receive, "<__signout__>"))
+		{
+			ClientDestroy(client);
+			return NULL;
+		}
+
+		// Send the message to current user
+		if (strstr(data_receive, "<__message_current_user__>"))
+		{
+
+		}
+
+		// Send the message to group
+		if (strstr(data_receive, "<__message_group__>"))
+		{
+
+		}
+
 	}
-	strcat(receive, "\n");
-	LogWrite(receive);
 
 
-	// Send the data to client
-	char transmit[MAX_DATA_SIZE];
-	sprintf_s(transmit, (size_t)MAX_DATA_SIZE, "Your data:\n%s\nwere received", receive);
-	data_size = send(client, transmit, strlen(transmit), 0);
-	if (data_size == SOCKET_ERROR)
-	{
-		LogWrite("Error sending data\n");
-		return (void*)2;
-	}
+	//// Get the data from client
+	//char receive[MAX_DATA_SIZE];
+	//data_size = recv(client, receive, MAX_DATA_SIZE, 0);
+	//if (!data_size || data_size == SOCKET_ERROR)
+	//{
+	//	LogWrite("Error getting data\n");
+	//	return (void*)1;
+	//}
+	//strcat(receive, "\n");
+	//LogWrite(receive);
 
-	return (void*)0;
+
+	//// Send the data to client
+	//char transmit[MAX_DATA_SIZE];
+	//sprintf_s(transmit, (size_t)MAX_DATA_SIZE, "Your data:\n%s\nwere received", receive);
+	//data_size = send(client, transmit, strlen(transmit), 0);
+	//if (data_size == SOCKET_ERROR)
+	//{
+	//	LogWrite("Error sending data\n");
+	//	return (void*)2;
+	//}
+
+	return NULL;
 }
 
 //=================================================================================

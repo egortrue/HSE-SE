@@ -45,29 +45,29 @@ void SendData2Server(int count, int number)
 
 
 	// Receive the answer from server
-	ret = SOCKET_ERROR;
-	while (ret == SOCKET_ERROR)
-	{
-		// Receive the text
-		ret = recv(client, message, 1024, 0);
-		message[ret] = '\0';
-		if (ret == 0 || ret == WSAECONNRESET)
-		{
-			printf("Connection closed\n");
-			break;
-		}
+	//ret = SOCKET_ERROR;
+	//while (ret == SOCKET_ERROR)
+	//{
+	//	// Receive the text
+	//	ret = recv(client, message, 1024, 0);
+	//	message[ret] = '\0';
+	//	if (ret == 0 || ret == WSAECONNRESET)
+	//	{
+	//		printf("Connection closed\n");
+	//		break;
+	//	}
 
-		if (ret < 0)
-		{
-			//printf("Can't receive message\n");
-			//closesocket(client);
-			//return;
-			continue;
-		}
+	//	if (ret < 0)
+	//	{
+	//		//printf("Can't receive message\n");
+	//		//closesocket(client);
+	//		//return;
+	//		continue;
+	//	}
 
-		// Output to local console
-		printf("Recieve:\n#############\n%s\nbytes: %d\n#############\n\n", message, ret);
-	}
+	//	// Output to local console
+	//	printf("Recieve:\n#############\n%s\nbytes: %d\n#############\n\n", message, ret);
+	//}
 
 	closesocket(client);
 }

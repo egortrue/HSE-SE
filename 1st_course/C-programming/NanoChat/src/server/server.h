@@ -42,7 +42,8 @@ typedef struct st_server
 	time_t time_start;
 	CLIENT** clients;
 
-	unsigned int online;
+	unsigned int active_connections;
+	unsigned int clients_online;
 	unsigned char status : 1;
 
 }SERVER;
