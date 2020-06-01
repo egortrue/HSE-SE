@@ -1,11 +1,4 @@
-﻿
-#pragma comment(lib, "Ws2_32.lib")
-
-#include <winsock.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
+﻿#include "client.h"
 
 void SendData2Server(int count, int number)
 {
@@ -76,13 +69,8 @@ int main()
 {
 	WSADATA wsd;
 	if (WSAStartup(MAKEWORD(1, 1), &wsd)) return 1;
-	printf("Connected to socket lib\n\n");
 
-	for (int i = 0; i < 10; i++)
-	{
-		SendData2Server(i, 1);
-		Sleep(1000);
-	}
+
 		
 	WSACleanup(); // It terminates use of the Winsock2 DLL (Ws2_32.dll).
 	return 0;

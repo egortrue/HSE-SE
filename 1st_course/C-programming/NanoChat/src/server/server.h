@@ -23,8 +23,7 @@ typedef struct st_client
 	SOCKADDR_IN address;
 	pthread_t thread;
 
-	char* name;
-	unsigned int id;
+	char* login;
 	unsigned char status : 1;
 }CLIENT;
 

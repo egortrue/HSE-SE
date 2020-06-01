@@ -11,11 +11,13 @@ int main()
 	WSADATA wsd;
 	if (WSAStartup(MAKEWORD(1, 1), &wsd)) return 1;		
 
-	char file_log_path[] = "..\\src\\server\\data\\log.txt";
-	file_log = FileOpen(file_log_path, "a");
-	pthread_mutex_init(&mutex_cmd, NULL); // Init access switcher for command line 
-	pthread_mutex_init(&mutex_log, NULL); // Init access switcher for log file 
-	pthread_mutex_init(&mutex_db,  NULL); // Init access switcher for database file
+	file_log      = FileOpen("..\\src\\server\\data\\log.txt", "a");
+	file_database = FileOpen("..\\src\\server\\data\\database.txt", "a+");
+
+	// Init the access switchers
+	pthread_mutex_init(&mutex_cmd, NULL);
+	pthread_mutex_init(&mutex_log, NULL); 
+	pthread_mutex_init(&mutex_db,  NULL);
 
 	SERVER* server = ServerCreate();
 
@@ -86,9 +88,11 @@ int main()
 
 	ServerStop(server);
 	ServerDestroy(server);
-	pthread_mutex_destroy(&mutex_db); // Destroy access switcher for database file
-	pthread_mutex_destroy(&mutex_log); // Destroy access switcher for log file
-	pthread_mutex_destroy(&mutex_cmd); // Destroy access switcher for command line
+
+	// Destroy the access switchers
+	pthread_mutex_destroy(&mutex_db);
+	pthread_mutex_destroy(&mutex_log);
+	pthread_mutex_destroy(&mutex_cmd);
 
 	_fcloseall();
 	WSACleanup(); // It terminates use of the winsock library (Ws2_32.dll).
@@ -102,10 +106,11 @@ SERVER* ServerCreate()
 {
 	SERVER* server = (SERVER*)malloc(sizeof(SERVER));
 	if (!server) exit(EXIT_FAILURE);
-
 	server->clients = (CLIENT**)calloc(MAX_CLIENTS_ONLINE, sizeof(CLIENT*));
 	if (!server->clients) exit(EXIT_FAILURE);
 
+
+	// Default options
 	server->status = stopped;
 	server->active_connections = 0;
 	server->clients_online = 0;
@@ -176,7 +181,7 @@ void* ServerRun(void* server_param)
 	int client_addr_size = sizeof(client_addr);
 	while (1)
 	{
-		// Is it the time to close the server?
+		// Is it the time to close the server?ы
 		pthread_testcancel();
 
 		// Get client data
@@ -187,7 +192,7 @@ void* ServerRun(void* server_param)
 		// Create a client and start a thread for work with him
 		CLIENT* client = ClientCreate(client_socket, client_addr);
 
-		struct _datum { SERVER* server; CLIENT* client };
+		struct _datum { SERVER* server; CLIENT* client; };
 		struct _datum* datum = (struct _datum*)malloc(sizeof(struct _datum));
 		datum->client = client;
 		datum->server = server;
@@ -226,29 +231,64 @@ void* ClientDestroy(CLIENT* client)
 {
 	closesocket(client->socket);
 	free(client);
+	return NULL;
 }
 
-void* ClientRun(void* client_param)
+void* ClientRun(void* client_param_)
 {
-	CLIENT* client = (CLIENT*)client_param;
+	struct _datum { SERVER* server; CLIENT* client; };
+	struct _datum* client_param = (struct _datum*)client_param_;
+
+	CLIENT* client = client_param->client;
+	SERVER* server = client_param->server;
 
 	while (1)
 	{
+		if (server->status == stopped)
+		{
+			ClientDestroy(client);
+			return NULL;
+		}
+
 		printf("a\n");
-		char data_receive[MAX_DATA_SIZE];
+		char data_receive[MAX_DATA_SIZE] = {0};
 		int data_size = recv(client->socket, data_receive, MAX_DATA_SIZE, 0);
 		if (data_size <= 0)
 			return NULL;
 
+
+		// Register in the system
+		if (strstr(data_receive, "<__register__>"))
+		{
+			// Example: "<__register__> name: Egor passw: 12345"
+			char* login_pos = strstr(data_receive, "login: ") + 8;
+			char* passw_pos = strstr(data_receive, "passw: ") + 8;
+			int login_len = (int)passw_pos - (int)login_pos - 8;
+			int passw_len = (int)strlen(data_receive) - (int)passw_pos;
+
+			pthread_mutex_lock(&mutex_db);
+			fprintf(file_database, data_receive);
+			pthread_mutex_unlock(&mutex_db);
+
+			continue;
+		}
+
 		// Enter in the system
 		if (strstr(data_receive, "<__signin__>"))
 		{
+			// Example: "<__signin__> name: Captain_Jack passw: Black_Pearl"
+			char* login_pos = strstr(data_receive, "login: ") + 8;
+			char* passw_pos = strstr(data_receive, "passw: ") + 8;
+			int login_len = (int)passw_pos - (int)login_pos - 8;
+			int passw_len = (int)strlen(data_receive) - (int)passw_pos;
 
+			continue;
 		}
 
 		// Exit the system
 		if (strstr(data_receive, "<__signout__>"))
 		{
+			server->active_connections--;
 			ClientDestroy(client);
 			return NULL;
 		}
@@ -259,7 +299,7 @@ void* ClientRun(void* client_param)
 
 		}
 
-		// Send the message to group
+		// Send the message to group of users
 		if (strstr(data_receive, "<__message_group__>"))
 		{
 
