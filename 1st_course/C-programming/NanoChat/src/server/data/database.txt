@@ -1,0 +1,3 @@
+sweft|123
+admin|1
+egor|543qws

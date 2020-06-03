@@ -41,7 +41,6 @@ typedef struct st_server
 	time_t time_start;
 	CLIENT** clients;
 
-	unsigned int active_connections;
 	unsigned int clients_online;
 	unsigned char status : 1;
 
@@ -56,7 +55,6 @@ SERVER* ServerCreate  ();
 // Other functions
 
 FILE* FileOpen (const char* name, const char* mode);
-void  LogWrite (char* string);
-
+char* FindUserInDataBase(char* login);
 
 #endif

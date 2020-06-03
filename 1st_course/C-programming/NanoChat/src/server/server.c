@@ -50,9 +50,9 @@ int main()
 		if (!strcmp(command, "status"))
 		{
 			if (server->status == started)
-				printf("Server is started\n");
+				printf("Server is started\n\n");
 			else
-				printf("Server is stopped\n");
+				printf("Server is stopped\n\n");
 			continue;
 		}
 
@@ -61,10 +61,10 @@ int main()
 			if (server->status == stopped)
 			{
 				pthread_create(&server->thread, NULL, ServerRun, (void*)server);
-				printf("Server is started\n");
+				printf("Server is started\n\n");
 			}
 			else
-				printf("Server already started\n");
+				printf("Server already started\n\n");
 			continue;
 		}
 
@@ -73,17 +73,17 @@ int main()
 			if (server->status == started)
 			{
 				ServerStop(server);
-				printf("Server is stopped\n");
+				printf("Server is stopped\n\n");
 			}
 			else
-				printf("Server already stopped\n");
+				printf("Server already stopped\n\n");
 			continue;
 		}
 
 		if (!strcmp(command, "exit"))
 			break;
 
-		printf("Command not found. Use \"help\" to show commands\n");
+		printf("Command not found. Use \"help\" to show commands\n\n");
 	}
 
 	ServerStop(server);
@@ -112,7 +112,6 @@ SERVER* ServerCreate()
 
 	// Default options
 	server->status = stopped;
-	server->active_connections = 0;
 	server->clients_online = 0;
 
 
@@ -167,12 +166,17 @@ void* ServerRun(void* server_param)
 	char time_server_start[1000] = {0};
 	strcat(time_server_start, "\n==============================================\n\n");
 	strcat(time_server_start, "Server was started at ");
+
 	char time_str_server_start[1000] = {0};
 	const time_t time_raw_server_start = time(NULL);
 	ctime_s(time_str_server_start, sizeof(time_str_server_start), &time_raw_server_start);
+
 	strcat(time_server_start, time_str_server_start);
 	strcat(time_server_start, "\n==============================================\n");
-	LogWrite(time_server_start);
+
+	pthread_mutex_lock(&mutex_log);
+	fprintf(file_log, time_server_start);
+	pthread_mutex_unlock(&mutex_log);
 
 
 	// Listen for incoming connection requests on the server
@@ -181,7 +185,7 @@ void* ServerRun(void* server_param)
 	int client_addr_size = sizeof(client_addr);
 	while (1)
 	{
-		// Is it the time to close the server?ы
+		// Is it the time to close the server?
 		pthread_testcancel();
 
 		// Get client data
@@ -199,7 +203,6 @@ void* ServerRun(void* server_param)
 
 		pthread_create(&client->thread, NULL, ClientRun, (void*)datum);
 		pthread_detach(client->thread);
-		printf("\nClient was connected (connection #%d)", ++(server->active_connections));
 	}
 	return NULL;
 }
@@ -224,12 +227,17 @@ CLIENT* ClientCreate(SOCKET sock, SOCKADDR_IN sock_addr)
 	client->socket = sock;
 	client->address = sock_addr;
 
+	client->login = NULL;
+	client->status = offline;
+
 	return client;
 }
 
 void* ClientDestroy(CLIENT* client)
 {
 	closesocket(client->socket);
+	if (client->login != NULL) 
+		free(client->login);
 	free(client);
 	return NULL;
 }
@@ -250,46 +258,128 @@ void* ClientRun(void* client_param_)
 			return NULL;
 		}
 
-		printf("a\n");
-		char data_receive[MAX_DATA_SIZE] = {0};
+
+		char data_receive[MAX_DATA_SIZE] = { 0 };
 		int data_size = recv(client->socket, data_receive, MAX_DATA_SIZE, 0);
 		if (data_size <= 0)
+		{
+			ClientDestroy(client);
 			return NULL;
+		}
+			
+
+		// Write down the log
+		pthread_mutex_lock(&mutex_log);
+		fprintf(file_log, "%s\n", data_receive);
+		pthread_mutex_unlock(&mutex_log);
 
 
-		// Register in the system
+		// Register in the system (write down to the database)
+		// Example: "<__register__> login: Egor passw: 12345"
 		if (strstr(data_receive, "<__register__>"))
 		{
-			// Example: "<__register__> name: Egor passw: 12345"
-			char* login_pos = strstr(data_receive, "login: ") + 8;
-			char* passw_pos = strstr(data_receive, "passw: ") + 8;
+
+			char* login_pos = strstr(data_receive, "login: ") + 7;
+			char* passw_pos = strstr(data_receive, "passw: ") + 7;
 			int login_len = (int)passw_pos - (int)login_pos - 8;
-			int passw_len = (int)strlen(data_receive) - (int)passw_pos;
+			int passw_len = (int)strlen(passw_pos);
+
+			char* login = (char*)calloc(login_len + 1, sizeof(char));
+			if (!login) exit(EXIT_FAILURE);
+
+			char* passw = (char*)calloc(passw_len + 1, sizeof(char));
+			if (!passw) exit(EXIT_FAILURE);
+
+			memcpy(login, login_pos, login_len);
+			memcpy(passw, passw_pos, passw_len);
+
+			char good[] = "You successfully registered";
+			char  bad[] = "You already registered";
 
 			pthread_mutex_lock(&mutex_db);
-			fprintf(file_database, data_receive);
+			char* user_db = FindUserInDataBase(login);
+			if (user_db != NULL)
+			{
+				send(client->socket, bad, strlen(bad), 0);
+				free(user_db);
+			}	
+			else
+			{
+				fseek(file_database, 0, SEEK_END);
+				fprintf(file_database, "%s|%s\n", login, passw);
+				send(client->socket, good, strlen(good), 0);
+			}
 			pthread_mutex_unlock(&mutex_db);
 
+			free(login);
+			free(passw);
 			continue;
 		}
+
 
 		// Enter in the system
+		// Example: "<__signin__> login: Captain_Jack passw: Black_Pearl"
 		if (strstr(data_receive, "<__signin__>"))
 		{
-			// Example: "<__signin__> name: Captain_Jack passw: Black_Pearl"
-			char* login_pos = strstr(data_receive, "login: ") + 8;
-			char* passw_pos = strstr(data_receive, "passw: ") + 8;
+			
+			char* login_pos = strstr(data_receive, "login: ") + 7;
+			char* passw_pos = strstr(data_receive, "passw: ") + 7;
 			int login_len = (int)passw_pos - (int)login_pos - 8;
-			int passw_len = (int)strlen(data_receive) - (int)passw_pos;
+			int passw_len = (int)strlen(passw_pos);
 
+			char* login = (char*)calloc(login_len + 1, sizeof(char));
+			if (!login) exit(EXIT_FAILURE);
+
+			char* passw = (char*)calloc(passw_len + 1, sizeof(char));
+			if (!passw) exit(EXIT_FAILURE);
+
+			memcpy(login, login_pos, login_len);
+			memcpy(passw, passw_pos, passw_len);
+
+			char good[] = "You successfully entered in the system!";
+			char bad_reg[] = "You are not registered";
+			char bad_pas[] = "Password is wrong";
+
+			pthread_mutex_lock(&mutex_db);
+			char* user_db = FindUserInDataBase(login);
+			if (user_db != NULL)
+			{
+				// Get password from database
+				char* cur_passw = (char*)calloc(passw_len + 1, sizeof(char));
+				if (!cur_passw) exit(EXIT_FAILURE);
+				memmove(cur_passw, user_db + login_len + 1, passw_len);
+
+				// Compare passwords
+				if (strcmp(passw, cur_passw))
+				{
+					send(client->socket, bad_pas, strlen(bad_pas), 0);
+					free(login);
+				}			
+				else
+				{
+					send(client->socket, good, strlen(good), 0);
+					client->login = login;
+				}
+				
+				free(user_db);
+			}
+			else
+			{
+				send(client->socket, bad_reg, strlen(bad_reg), 0);
+				free(login);
+			}		
+			pthread_mutex_unlock(&mutex_db);
+
+			free(passw);
 			continue;
 		}
+
 
 		// Exit the system
 		if (strstr(data_receive, "<__signout__>"))
 		{
-			server->active_connections--;
-			ClientDestroy(client);
+			free(client->login);
+			client->status = offline;
 			return NULL;
 		}
 
@@ -299,6 +389,7 @@ void* ClientRun(void* client_param_)
 
 		}
 
+
 		// Send the message to group of users
 		if (strstr(data_receive, "<__message_group__>"))
 		{
@@ -307,33 +398,45 @@ void* ClientRun(void* client_param_)
 
 	}
 
-
-	//// Get the data from client
-	//char receive[MAX_DATA_SIZE];
-	//data_size = recv(client, receive, MAX_DATA_SIZE, 0);
-	//if (!data_size || data_size == SOCKET_ERROR)
-	//{
-	//	LogWrite("Error getting data\n");
-	//	return (void*)1;
-	//}
-	//strcat(receive, "\n");
-	//LogWrite(receive);
-
-
-	//// Send the data to client
-	//char transmit[MAX_DATA_SIZE];
-	//sprintf_s(transmit, (size_t)MAX_DATA_SIZE, "Your data:\n%s\nwere received", receive);
-	//data_size = send(client, transmit, strlen(transmit), 0);
-	//if (data_size == SOCKET_ERROR)
-	//{
-	//	LogWrite("Error sending data\n");
-	//	return (void*)2;
-	//}
-
 	return NULL;
 }
 
 //=================================================================================
+
+char* FindUserInDataBase(char* login)
+{
+	// Size of file
+	fseek(file_database, 0, SEEK_END);
+	int file_size = ftell(file_database);
+
+	// Go to the begin of file
+	fseek(file_database, 0, SEEK_SET);
+
+	// Buffer for checking
+	char* string = (char*)calloc(MAX_DATA_SIZE, sizeof(char));
+	if (!string) exit(EXIT_FAILURE);
+
+	char* cur_login = NULL;
+
+	// Skip the strings while it is not a neccessary string
+	do
+	{
+		// if the end of file
+		if (ftell(file_database) == file_size)
+		{
+			free(string);
+			return NULL;
+		}
+
+		// Read a string from file
+		fgets(string, MAX_DATA_SIZE, file_database);
+		cur_login = strtok(string, "|");
+
+	} while (strcmp(login, cur_login));
+
+	return string;
+}
+
 
 FILE* FileOpen(const char* name, const char* mode)
 {
@@ -351,13 +454,6 @@ FILE* FileOpen(const char* name, const char* mode)
 		exit(EXIT_FAILURE);
 	}
 	return file;
-}
-
-void LogWrite(char* string)
-{
-	pthread_mutex_lock(&mutex_log);
-	fprintf(file_log, string);
-	pthread_mutex_unlock(&mutex_log);
 }
 
 //=================================================================================

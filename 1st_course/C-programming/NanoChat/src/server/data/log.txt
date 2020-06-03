@@ -1,0 +1,9 @@
+==============================================
+
+Server was started at Wed Jun  3 20:38:34 2020
+
+==============================================
+<__register__> login: sweft passw: 123
+<__register__> login: admin passw: 1
+<__signin__> login: sweft passw: 123
+<__signin__> login: admin passw: 1
