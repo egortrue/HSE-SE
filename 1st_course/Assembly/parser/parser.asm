@@ -16,6 +16,8 @@ clear_email macro
         inc DI
     loop buffer_email_clear
     mov buffer_email_pos, 0
+    mov local_part_size, 0
+    mov subdomain_size, 0
 
     pop DI
     pop CX
@@ -145,12 +147,13 @@ main:
     int	21h
     mov	file_out_handler, AX	  ; Сохранить дескриптор
 
-; Отступить две строки от начала
+; Отступить три строки от начала
 mov AL, ' '
-mov CX, 20
+mov CX, 30
 shift:
     write_email_letter
 loop shift
+
 mov AL, LF
 write_email_letter
 mov AL, CR
@@ -159,6 +162,7 @@ mov AL, LF
 write_email_letter
 mov AL, CR
 write_email_letter
+
 mov	AH, 40h				     ; Функция записи
 mov	BX, file_out_handler     ; Дескриптор
 mov	CX, buffer_email_pos     ; Число записываемых байтов
@@ -169,15 +173,15 @@ clear_email
 
 ;-------------------------------------------------------
 read:
-; Пытаемся прочитать 32Кб
+; Пытаемся прочитать 40Кб
     mov	AH, 3Fh		        ; Функция READ
     mov	BX, file_in_handler ; Дескриптор
-    mov	CX, 32768		    ; Сколько читать
+    mov	CX, 40960		    ; Сколько читать
     lea	DX, buffer_read     ; Сюда читать
     int 21h
 
-; Последние 32Кб ?
-    cmp AX, 32768
+; Последние 40Кб ?
+    cmp AX, 40960
     je not_last
     inc flag_last
     not_last:
@@ -205,10 +209,24 @@ read:
             cmp parser_handler, 2
             jne status3
             call is_convinient
+
             cmp AH, 1
-            jne at_sign
+            jne local_dot
+            cmp local_part_size, 40h ; ограничение длины локальной части до 64 символов
+            je at_sign
+            inc local_part_size
             write_email_letter
             jmp next_letter
+
+            local_dot:
+            cmp AL, DOT
+            jne at_sign
+            cmp local_part_size, 40h
+            je at_sign
+            inc local_part_size
+            write_email_letter
+            jmp next_letter
+
             at_sign:
             cmp AL, ATS ; if AL = @
             jne err2
@@ -236,16 +254,22 @@ read:
             cmp parser_handler, 4
             jne status5
             call is_convinient
+
             cmp AH, 1
             jne dot_sign
+            cmp subdomain_size, 40h ; ограничение длины поддомена до 64 символов
+            je err4
+            inc subdomain_size
             write_email_letter
             jmp next_letter
+
             dot_sign:
             cmp AL, DOT
             jne err4
             write_email_letter
             inc parser_handler
             jmp next_letter
+
             err4:
         jmp go_to_email_start
 
@@ -263,27 +287,32 @@ read:
             err5:
         jmp go_to_email_start
 
-        ; last letters (or space)
+
+        ; last letters (or space or another dot)
         status6:
             call is_convinient
             cmp AH, 1
-            jne last_space
+            jne another_dot
             write_email_letter
             jmp next_letter
+
+            another_dot:
+            cmp AL, DOT
+            jne last_space
+            write_email_letter
+            dec parser_handler
+            jmp next_letter
+
             last_space:
             cmp AL, SPACE
             je write
             cmp AL, CR
+            je write
+            cmp AL, 59 ; ";"
             jne go_to_email_start
             write:
 
-                inc counter_emails
-
-                ; Вывод в консоль (для наглядности)
-                print_letter CR
-                mov AH, 09h
-                lea DX, buffer_email
-                int 21h
+                inc counter_correct_emails
 
                 ; Запись email в выходной файл
                 mov AL, LF
@@ -324,14 +353,14 @@ exit:
     ; Вывод текста в первой строке
     mov	AH, 40h				     ; Функция записи
     mov	BX, file_out_handler     ; Дескриптор
-    mov	CX, counter_text_size    ; Число записываемых байтов
-    lea DX, counter_text         ; Адрес буфера
+    mov	CX, counter_text1_size    ; Число записываемых байтов
+    lea DX, counter_text1         ; Адрес буфера
     int 21h
 
     ; Вывод кол-ва корректных почт
-    mov	AX,	counter_emails	;	Выводимое число в регисте EAX
-	push -1					;	Сохраним признак конца числа
-	mov CX, 10				;	Делим на 10
+    mov	AX,	counter_correct_emails	;	Выводимое число в регисте EAX
+	push -1					        ;	Сохраним признак конца числа
+	mov CX, 10				        ;	Делим на 10
 l1:
 	xor	DX,	DX	;	Очистим регистр DX
 	div	CX	    ;	Делим
@@ -343,11 +372,11 @@ l2:
 	cmp	DX,	-1	;	Дошли до конца -> выход {оптимальнее: or EDX,dx jl ex}
 	je	ex
 	add	DX,	'0'	;	Преобразуем число в цифру
-    mov counter_emails, DX
-    mov	AH, 40h				     ; Функция записи
-    mov	BX, file_out_handler     ; Дескриптор
-    mov	CX, 1                    ; Число записываемых байтов
-    lea DX, counter_emails       ; Адрес буфера
+    mov counter_correct_emails, DX
+    mov	AH, 40h				       ; Функция записи
+    mov	BX, file_out_handler       ; Дескриптор
+    mov	CX, 1                      ; Число записываемых байтов
+    lea DX, counter_correct_emails ; Адрес буфера
     int 21h
 	jmp	l2		;	И продолжим
 ex:
@@ -358,7 +387,7 @@ ex:
 
 ;-------------------------------------------------------
 
-; Is letter convinient? (A<->Z or a<->z or 0<->9)
+; Is letter convinient? (A<->Z or a<->z or 0<->9 or "+" or "-" or "_")
 ; AL - letter
 ; AH - ouput (1 - yes, 0 - no)
 is_convinient PROC
@@ -369,6 +398,7 @@ is_convinient PROC
     ja not_big_letter
     inc AH
     ret
+
 not_big_letter:
     cmp AL, 97 ; "a"
     jb not_letter
@@ -376,13 +406,46 @@ not_big_letter:
     ja not_letter
     inc AH
     ret
+
 not_letter:
     cmp AL, 48 ; "0"
     jb not_number
     cmp AL, 57 ; "9"
     ja not_number
     inc AH
-    not_number:
+    ret
+
+not_number:
+    cmp AL, 43 ; "+"
+    jne not_plus
+    inc AH
+    ret
+
+not_plus:
+    cmp AL, 45 ; "-"
+    jne not_minus
+    inc AH
+    ret
+
+not_minus:
+    cmp AL, 95 ; "_"
+    jne not_underline
+    inc AH
+    ret
+
+not_underline:
+    cmp AL, 96 ; "<'>"
+    jne not_bracket
+    inc AH
+    ret
+
+not_bracket:
+    cmp AL, 34 ; "<">"
+    jne not_convinient
+    inc AH
+    ret
+
+not_convinient:
     ret
 is_convinient ENDP
 
@@ -403,16 +466,25 @@ file_out_handler DW ?
 
 parser_handler DB 1 ; parser status (1-6)
 
-counter_emails    DW 0
-counter_text      DB "Correct emails: "
-counter_text_size EQU $ - counter_text
+; Размер локальной части и поддомена (максимум 64 символа (40h))
+local_part_size DB 0
+subdomain_size DB 0
+
+counter_correct_emails    DW 0
+counter_incorrect_emails  DW 0
+
+counter_text1      DB "Correct emails: "
+counter_text1_size EQU $ - counter_text1
+
+counter_text2      DB "Incorrect emails: "
+counter_text2_size EQU $ - counter_text2
 
 buffer_email       DB 101 dup(0), '$'
 buffer_email_pos   DW 0
 buffer_email_size EQU 100
 
 flag_last   DB 0
-buffer_read DB 32768 dup(0)
+buffer_read DB 40960 dup(0)
 
 ;-------------------------------------------------------
 CODE_SEG ends
