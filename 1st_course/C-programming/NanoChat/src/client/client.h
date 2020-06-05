@@ -27,6 +27,9 @@ typedef struct st_client
 CLIENT* ClientCreate  ();
 void    ClientDestroy (CLIENT* client);
 
+void SendData(CLIENT* client, char* data);
+void ReceiveData(CLIENT* client, char* data);
+
 void TryConnect(CLIENT* client);
 void Registration(CLIENT* client);
 void SignIn(CLIENT* client);

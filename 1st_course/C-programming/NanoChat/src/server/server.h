@@ -23,8 +23,7 @@ typedef struct st_client
 	SOCKADDR_IN address;
 	pthread_t thread;
 
-	char* login;
-	unsigned char status : 1;
+	char* login; // DeepWeb principle
 }CLIENT;
 
 CLIENT* ClientCreate  (SOCKET sock, SOCKADDR_IN sock_addr);
@@ -39,9 +38,10 @@ typedef struct st_server
 	SOCKADDR_IN address;
 	pthread_t thread;
 	time_t time_start;
-	CLIENT** clients;
 
 	unsigned int clients_online;
+	CLIENT** clients;
+
 	unsigned char status : 1;
 
 }SERVER;

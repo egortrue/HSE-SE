@@ -227,8 +227,7 @@ CLIENT* ClientCreate(SOCKET sock, SOCKADDR_IN sock_addr)
 	client->socket = sock;
 	client->address = sock_addr;
 
-	client->login = NULL;
-	client->status = offline;
+	client->login = NULL; // Client not enter in the DeepWeb yet.
 
 	return client;
 }
@@ -250,25 +249,24 @@ void* ClientRun(void* client_param_)
 	CLIENT* client = client_param->client;
 	SERVER* server = client_param->server;
 
+	free(client_param);
+
+	// Main thread cycle
 	while (1)
 	{
+		// If server is closed -> stop the thread
 		if (server->status == stopped)
-		{
-			ClientDestroy(client);
-			return NULL;
-		}
+			break;
 
-
+		// Receive the data from client
+		// If we can't receive the data -> stop the thread
 		char data_receive[MAX_DATA_SIZE] = { 0 };
 		int data_size = recv(client->socket, data_receive, MAX_DATA_SIZE, 0);
 		if (data_size <= 0)
-		{
-			ClientDestroy(client);
-			return NULL;
-		}
+			break;
 			
 
-		// Write down the log
+		// Write down the log of receiving
 		pthread_mutex_lock(&mutex_log);
 		fprintf(file_log, "%s\n", data_receive);
 		pthread_mutex_unlock(&mutex_log);
@@ -278,7 +276,7 @@ void* ClientRun(void* client_param_)
 		// Example: "<__register__> login: Egor passw: 12345"
 		if (strstr(data_receive, "<__register__>"))
 		{
-
+			// Get login and password from received data
 			char* login_pos = strstr(data_receive, "login: ") + 7;
 			char* passw_pos = strstr(data_receive, "passw: ") + 7;
 			int login_len = (int)passw_pos - (int)login_pos - 8;
@@ -293,6 +291,8 @@ void* ClientRun(void* client_param_)
 			memcpy(login, login_pos, login_len);
 			memcpy(passw, passw_pos, passw_len);
 
+
+			// Find simillar data in the database
 			char good[] = "You successfully registered";
 			char  bad[] = "You already registered";
 
@@ -306,11 +306,12 @@ void* ClientRun(void* client_param_)
 			else
 			{
 				fseek(file_database, 0, SEEK_END);
-				fprintf(file_database, "%s|%s\n", login, passw);
+				fprintf(file_database, "%s|%s\n", login, passw); // Register in the database
 				send(client->socket, good, strlen(good), 0);
 			}
 			pthread_mutex_unlock(&mutex_db);
 
+			// Clear all received data anyway
 			free(login);
 			free(passw);
 			continue;
@@ -321,7 +322,7 @@ void* ClientRun(void* client_param_)
 		// Example: "<__signin__> login: Captain_Jack passw: Black_Pearl"
 		if (strstr(data_receive, "<__signin__>"))
 		{
-			
+			// Get login and password from received data
 			char* login_pos = strstr(data_receive, "login: ") + 7;
 			char* passw_pos = strstr(data_receive, "passw: ") + 7;
 			int login_len = (int)passw_pos - (int)login_pos - 8;
@@ -336,6 +337,8 @@ void* ClientRun(void* client_param_)
 			memcpy(login, login_pos, login_len);
 			memcpy(passw, passw_pos, passw_len);
 
+
+			// Find simillar data in the database
 			char good[] = "You successfully entered in the system!";
 			char bad_reg[] = "You are not registered";
 			char bad_pas[] = "Password is wrong";
@@ -344,23 +347,24 @@ void* ClientRun(void* client_param_)
 			char* user_db = FindUserInDataBase(login);
 			if (user_db != NULL)
 			{
+
 				// Get password from database
-				char* cur_passw = (char*)calloc(passw_len + 1, sizeof(char));
-				if (!cur_passw) exit(EXIT_FAILURE);
-				memmove(cur_passw, user_db + login_len + 1, passw_len);
+				char* db_passw = strchr(user_db, '|') + 1;
+				char* db_passw_end = strchr(user_db, '\n');
+				memset(db_passw_end, 0, 1);
 
 				// Compare passwords
-				if (strcmp(passw, cur_passw))
+				if (strcmp(passw, db_passw))
 				{
 					send(client->socket, bad_pas, strlen(bad_pas), 0);
 					free(login);
-				}			
+				}
 				else
 				{
 					send(client->socket, good, strlen(good), 0);
-					client->login = login;
+					client->login = login; // Client entered in the DeepWeb
 				}
-				
+
 				free(user_db);
 			}
 			else
@@ -369,6 +373,7 @@ void* ClientRun(void* client_param_)
 				free(login);
 			}		
 			pthread_mutex_unlock(&mutex_db);
+
 
 			free(passw);
 			continue;
@@ -379,7 +384,7 @@ void* ClientRun(void* client_param_)
 		if (strstr(data_receive, "<__signout__>"))
 		{
 			free(client->login);
-			client->status = offline;
+			client->login = NULL;  // Client leave the DeepWeb
 			return NULL;
 		}
 
@@ -398,6 +403,8 @@ void* ClientRun(void* client_param_)
 
 	}
 
+	// Stop the thread
+	ClientDestroy(client);
 	return NULL;
 }
 
@@ -416,24 +423,40 @@ char* FindUserInDataBase(char* login)
 	char* string = (char*)calloc(MAX_DATA_SIZE, sizeof(char));
 	if (!string) exit(EXIT_FAILURE);
 
-	char* cur_login = NULL;
+	// Address of "|" in string
+	char* separator = NULL;
 
-	// Skip the strings while it is not a neccessary string
 	do
 	{
-		// if the end of file
+
+		// If the end of file
 		if (ftell(file_database) == file_size)
 		{
 			free(string);
 			return NULL;
 		}
 
+		// Clear the string which was before
+		memset(string, 0, MAX_DATA_SIZE);
+
 		// Read a string from file
 		fgets(string, MAX_DATA_SIZE, file_database);
-		cur_login = strtok(string, "|");
+		
+		// Find the address of separator
+		separator = strchr(string, '|');
+		if (separator == NULL)
+		{
+			free(string);
+			return NULL;
+		}
 
-	} while (strcmp(login, cur_login));
+		// Set zero on separator's place for string compare
+		memset(separator, 0, 1);
 
+	} while (strcmp(login, string));
+
+	// Restore the separator in return string
+	memset(separator, '|', 1);
 	return string;
 }
 

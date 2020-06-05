@@ -21,7 +21,7 @@ int main()
 			printf("|      cls - clear screen\n");
 			printf("|   status - show your status\n");
 			printf("|  connect - try to connect with the server\n");
-			printf("| register - try to connect with the server\n");
+			printf("| register - register in the system\n");
 			printf("|   signin - enter in the system\n");
 			printf("|  signout - exit the system\n");
 			printf("|     exit - shutdown the program\n");
@@ -37,10 +37,12 @@ int main()
 
 		if (!strcmp(command, "connect"))
 		{
-			if (client->connection == disconnected)
-				TryConnect(client);
-			else
-				printf("You already connected\n\n");
+			if (client->connection == connected)
+			{
+				printf("You already connected.\n\n");
+				continue;
+			}
+			TryConnect(client);
 			continue;
 		}
 
@@ -63,17 +65,47 @@ int main()
 				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
 				continue;
 			}
+
+			if (client->status == online)
+			{
+				printf("You are sign in already. Use \"signout\" to leave the system.\n\n");
+				continue;
+			}
 				
 			system("cls");
 			SignIn(client);
 			continue;
 		}
 
+		if (!strcmp(command, "signout"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			system("cls");
+			SignOut(client);
+			continue;
+		}
+
+
+		if (!strcmp(command, "status"))
+		{
+
+		}
 
 		if (!strcmp(command, "exit"))
 			break;
 
-		printf("Command not found. Use \"help\" to show commands\n\n");
+		printf("Command not found. Use \"help\" to show commands.\n\n");
 	}
 
 	ClientDestroy(client);
@@ -112,11 +144,11 @@ CLIENT* ClientCreate()
 void TryConnect(CLIENT* client)
 {
 	if (connect(client->socket, (SOCKADDR*)&(client->address), sizeof(client->address)) == SOCKET_ERROR)
-		printf("Can't connect to server. Please, try later\n\n");
+		printf("Can't connect to server. Please, try later.\n\n");
 	else
 	{
 		client->connection = connected;
-		printf("Connection was established\n\n");
+		printf("Connection was established.\n\n");
 	}	
 }
 
@@ -198,7 +230,31 @@ void SignIn(CLIENT* client)
 
 	printf("\n%s\n\n", data);
 
-	free(data);
-	free(login);
-	free(passw);
+	if (!strcmp(data, "You successfully entered in the system!"))
+	{
+		client->status = online;
+		client->login = login;
+		free(data);
+		free(passw);
+	}
+	else
+	{
+		client->status = offline;
+		client->login = NULL;
+		free(login);
+		free(data);
+		free(passw);
+	}
+}
+
+void SignOut(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+	strcat(data, "<__signout__>");
+	SendData(client, data);
+
+	client->status = offline;
+	free(client->login);
+	client->login = NULL;
 }
