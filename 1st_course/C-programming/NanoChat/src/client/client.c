@@ -10,7 +10,10 @@ int main()
 	// Main client's console cycle
 	while (1)
 	{
-		printf("<client> ");
+		if (client->status == offline)
+			printf("<client> ");
+		else
+			printf("<client: %s> ", client->login);
 		char command[51] = { 0 };
 		gets_s(command, 50);
 
@@ -24,6 +27,8 @@ int main()
 			printf("| register - register in the system\n");
 			printf("|   signin - enter in the system\n");
 			printf("|  signout - exit the system\n");
+			printf("|     send - send message to current user\n");
+			printf("|      get - get only new messages which sent to you\n");
 			printf("|     exit - shutdown the program\n");
 			printf("\n");
 			continue;
@@ -32,6 +37,30 @@ int main()
 		if (!strcmp(command, "cls"))
 		{
 			system("cls");
+			continue;
+		}
+
+
+		if (!strcmp(command, "status"))
+		{
+			printf("\nStatus:\n");
+			if (client->connection == connected)
+				printf("| connected to server\n");
+			else
+			{
+				printf("| disconnected to server\n\n");
+				continue;
+			}
+
+			if (client->status == online)
+				printf("| status: online\n");
+			else
+			{
+				printf("| status: offline\n\n");
+				continue;
+			}
+
+			printf("| login: %s\n\n", client->login);
 			continue;
 		}
 
@@ -53,7 +82,7 @@ int main()
 				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
 				continue;
 			}
-			system("cls");
+
 			Registration(client);
 			continue;
 		}
@@ -72,7 +101,6 @@ int main()
 				continue;
 			}
 				
-			system("cls");
 			SignIn(client);
 			continue;
 		}
@@ -91,15 +119,44 @@ int main()
 				continue;
 			}
 
-			system("cls");
 			SignOut(client);
 			continue;
 		}
 
-
-		if (!strcmp(command, "status"))
+		if (!strcmp(command, "send"))
 		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
 
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			SendMessageToCurrentUser(client);
+			continue;
+		}
+
+		if (!strcmp(command, "get"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			GetNewMessages(client);
+			continue;
 		}
 
 		if (!strcmp(command, "exit"))
@@ -125,7 +182,7 @@ CLIENT* ClientCreate()
 	if (client->socket == INVALID_SOCKET)
 	{
 		printf("Error create socket\n");
-		return;
+		return NULL;
 	}
 
 	// Set connection settings
@@ -223,7 +280,7 @@ void SignIn(CLIENT* client)
 
 	strcat(data, " passw: ");
 	printf("| password: ");
-	strcat(data, gets_s(login, MAX_PASSW_SIZE));
+	strcat(data, gets_s(passw, MAX_PASSW_SIZE));
 
 	SendData(client, data);
 	ReceiveData(client, data);
@@ -257,4 +314,57 @@ void SignOut(CLIENT* client)
 	client->status = offline;
 	free(client->login);
 	client->login = NULL;
+}
+
+
+void SendMessageToCurrentUser(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+
+	strcat(data, "<__message_current_user__> from: ");
+	strcat(data, client->login);
+	strcat(data, " to: ");
+
+	char* recv_login = (char*)calloc(MAX_LOGIN_SIZE + 1, sizeof(char));
+	if (!recv_login) exit(EXIT_FAILURE);
+
+	printf("Send message\n");
+	printf("| receiver: ");
+	strcat(data, gets_s(recv_login, MAX_LOGIN_SIZE));
+
+	char* message = (char*)calloc(MAX_MESS_SIZE + 1, sizeof(char));
+	if (!message) exit(EXIT_FAILURE);
+
+	strcat(data, " mes: ");
+	printf("| message: ");
+	strcat(data, gets_s(message, MAX_MESS_SIZE));
+
+	SendData(client, data);
+	ReceiveData(client, data);
+
+	printf("\n%s\n\n", data);
+
+	free(recv_login);
+	free(message);
+	free(data);
+}
+
+
+void GetNewMessages(CLIENT* client)
+{
+	// big buffer for all the new messages
+	char* data = (char*)calloc(MAX_DATA_SIZE*MAX_DATA_SIZE, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+
+	int f = 1;
+	ioctlsocket(client->socket, FIONBIO, &f);
+
+	ReceiveData(client, data);
+
+	f = 0;
+	ioctlsocket(client->socket, FIONBIO, &f);
+
+	printf("%s\n", data);
+	free(data);
 }

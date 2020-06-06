@@ -50,7 +50,10 @@ int main()
 		if (!strcmp(command, "status"))
 		{
 			if (server->status == started)
-				printf("Server is started\n\n");
+			{
+				printf("Server is started\n");
+				printf("Clients online: %d\n\n", server->clients_online);
+			}		
 			else
 				printf("Server is stopped\n\n");
 			continue;
@@ -164,7 +167,7 @@ void* ServerRun(void* server_param)
 
 	// Server startup time	
 	char time_server_start[1000] = {0};
-	strcat(time_server_start, "\n==============================================\n\n");
+	strcat(time_server_start, "==============================================\n\n");
 	strcat(time_server_start, "Server was started at ");
 
 	char time_str_server_start[1000] = {0};
@@ -217,6 +220,28 @@ void ServerStop(SERVER* server)
 	}
 }
 
+int ServerConnectClient(SERVER* server, CLIENT* client)
+{
+	for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
+		if (server->clients[i] == NULL)
+		{
+			server->clients[i] = client;
+			server->clients_online++;
+			return 0;
+		}
+	return 1; // Not enough free places
+}
+
+void ServerDisconnectClient(SERVER* server, CLIENT* client)
+{
+	for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
+		if (server->clients[i] == client)
+		{
+			server->clients[i] = NULL;
+			server->clients_online--;
+		}
+}
+
 //=================================================================================
 
 CLIENT* ClientCreate(SOCKET sock, SOCKADDR_IN sock_addr)
@@ -251,7 +276,7 @@ void* ClientRun(void* client_param_)
 
 	free(client_param);
 
-	// Main thread cycle
+	// Main client's thread cycle
 	while (1)
 	{
 		// If server is closed -> stop the thread
@@ -340,6 +365,7 @@ void* ClientRun(void* client_param_)
 
 			// Find simillar data in the database
 			char good[] = "You successfully entered in the system!";
+			char bad_space[] = "The server is overflow";
 			char bad_reg[] = "You are not registered";
 			char bad_pas[] = "Password is wrong";
 
@@ -361,8 +387,16 @@ void* ClientRun(void* client_param_)
 				}
 				else
 				{
-					send(client->socket, good, strlen(good), 0);
-					client->login = login; // Client entered in the DeepWeb
+							
+					client->login = login;
+					// Not enough space in the server
+					if (ServerConnectClient(server, client))
+					{
+						send(client->socket, bad_space, strlen(bad_space), 0);
+						free(client->login);
+					}	
+					else // Client successfully entered in the DeepWeb	
+						send(client->socket, good, strlen(good), 0);
 				}
 
 				free(user_db);
@@ -382,20 +416,87 @@ void* ClientRun(void* client_param_)
 
 		// Exit the system
 		if (strstr(data_receive, "<__signout__>"))
-		{
+		{	
 			free(client->login);
 			client->login = NULL;  // Client leave the DeepWeb
-			return NULL;
+			ServerDisconnectClient(server, client);
 		}
 
-		// Send the message to current user
+		// Send a message to current user
+		// Example: "<__message_current_user__> from: Egor to: Captain_Jack mes: "hello, Jack""
 		if (strstr(data_receive, "<__message_current_user__>"))
 		{
 
+			// Get both login and message data from received string
+			char* sender = strstr(data_receive, "from: ") + 6;
+			char* receiver = strstr(data_receive, "to: ") + 4;
+			char* message = strstr(data_receive, "mes: ") + 5;
+			int sender_len = (int)receiver - (int)sender - 5;
+			int receiver_len = (int)message - (int)receiver - 6;
+			int message_len = (int)strlen(message);
+
+			char* sender_login = (char*)calloc(sender_len + 1, sizeof(char));
+			if (!sender_login) exit(EXIT_FAILURE);
+
+			char* receiver_login = (char*)calloc(receiver_len + 1, sizeof(char));
+			if (!receiver_login) exit(EXIT_FAILURE);
+
+			char* message_data = (char*)calloc(message_len + 1, sizeof(char));
+			if (!message_data) exit(EXIT_FAILURE);
+
+			memcpy(sender_login, sender, sender_len);
+			memcpy(receiver_login, receiver, receiver_len);
+			memcpy(message_data, message, message_len);
+
+			char recv_err1[] = "Receiver not found";
+			char recv_err2[] = "Receiver is offline. Try later";
+			char good[] = "Receiver get your message!";
+		
+			// Find receiver in database
+			char* receiver_db = FindUserInDataBase(receiver_login);
+
+			if (receiver_db != NULL)
+			{
+				CLIENT* receiver_data = NULL;
+				for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
+					if ((server->clients[i] != NULL) && (!strcmp(server->clients[i]->login, receiver_login)))
+						receiver_data = server->clients[i];
+
+				if (receiver_data != NULL)
+				{
+					char* data_for_receiver = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+					if (!data_for_receiver) exit(EXIT_FAILURE);
+
+					strcat(data_for_receiver, "New message from ");
+					strcat(data_for_receiver, sender_login);
+					strcat(data_for_receiver, ": ");
+					strcat(data_for_receiver, message_data);
+					strcat(data_for_receiver, "\n"); // for non-blocking type of recv() (command "get" in client)
+
+					send(receiver_data->socket, data_for_receiver, strlen(data_for_receiver), 0);
+					send(client->socket, good, strlen(good), 0);
+
+					free(data_for_receiver);
+				}
+				else
+				{
+					send(client->socket, recv_err2, strlen(recv_err2), 0);
+				}
+
+				free(receiver_db);
+			}
+			else
+			{
+				send(client->socket, recv_err1, strlen(recv_err1), 0);
+			}
+
+			free(sender_login);
+			free(receiver_login);
+			free(message_data);
 		}
+		
 
-
-		// Send the message to group of users
+		// Send a message to group of users
 		if (strstr(data_receive, "<__message_group__>"))
 		{
 

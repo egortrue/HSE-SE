@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#define _CRT_SECURE_NO_WARNINGS
 #pragma comment(lib, "Ws2_32.lib")
 
 #define HAVE_STRUCT_TIMESPEC
@@ -39,8 +40,8 @@ typedef struct st_server
 	pthread_t thread;
 	time_t time_start;
 
-	unsigned int clients_online;
 	CLIENT** clients;
+	unsigned int clients_online;
 
 	unsigned char status : 1;
 
@@ -50,6 +51,9 @@ SERVER* ServerCreate  ();
   void* ServerDestroy (SERVER* server);
   void* ServerRun     (void* server_param); // Start main thread
   void  ServerStop    (SERVER* server);     // Close main thread
+
+ int ServerConnectClient    (SERVER* server, CLIENT* client);
+void ServerDisconnectClient (SERVER* server, CLIENT* client);
 
 //===========================================================
 // Other functions
