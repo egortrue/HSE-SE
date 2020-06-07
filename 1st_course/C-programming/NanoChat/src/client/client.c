@@ -22,13 +22,23 @@ int main()
 			printf("\n");
 			printf("|     help - list of commands\n");
 			printf("|      cls - clear screen\n");
-			printf("|   status - show your status\n");
+			printf("|   status - show your status\n|\n");
+
 			printf("|  connect - try to connect with the server\n");
-			printf("| register - register in the system\n");
+			printf("| register - register in the system\n|\n");
+
 			printf("|   signin - enter in the system\n");
-			printf("|  signout - exit the system\n");
+			printf("|  signout - exit the system\n|\n");
+
+			printf("|   groups - list of groups\n");
+			printf("|  chgroup - change your group id (1-128) (0 - without group)\n|\n");
+
 			printf("|     send - send message to current user\n");
-			printf("|      get - get only new messages which sent to you\n");
+			printf("|   sendgr - send message to group\n|\n");
+
+			printf("|      get - get messages which were sent to you\n");
+			printf("|    getgr - get messages which were sent to your group\n|\n");
+
 			printf("|     exit - shutdown the program\n");
 			printf("\n");
 			continue;
@@ -60,7 +70,8 @@ int main()
 				continue;
 			}
 
-			printf("| login: %s\n\n", client->login);
+			printf("| login: %s\n", client->login);
+			printf("| group id: %d\n\n", client->group_id);
 			continue;
 		}
 
@@ -123,6 +134,40 @@ int main()
 			continue;
 		}
 
+
+		if (!strcmp(command, "groups"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			Groups(client);
+			continue;
+		}
+
+
+		if (!strcmp(command, "chgroup"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			ChangeGroup(client);
+			continue;
+		}
+
+
+
 		if (!strcmp(command, "send"))
 		{
 			if (client->connection == disconnected)
@@ -141,6 +186,26 @@ int main()
 			continue;
 		}
 
+
+		if (!strcmp(command, "sendgr"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			SendMessageToGroup(client);
+			continue;
+		}
+
+
 		if (!strcmp(command, "get"))
 		{
 			if (client->connection == disconnected)
@@ -155,9 +220,29 @@ int main()
 				continue;
 			}
 
-			GetNewMessages(client);
+			GetMessages(client);
 			continue;
 		}
+
+
+		if (!strcmp(command, "getgr"))
+		{
+			if (client->connection == disconnected)
+			{
+				printf("You disconnected to server. Use \"connect\" to fix it.\n\n");
+				continue;
+			}
+
+			if (client->status == offline)
+			{
+				printf("You are not enter in the system yet. Use command \"signin\".\n\n");
+				continue;
+			}
+
+			GetGroupMessages(client);
+			continue;
+		}
+
 
 		if (!strcmp(command, "exit"))
 			break;
@@ -166,7 +251,6 @@ int main()
 	}
 
 	ClientDestroy(client);
-
 	WSACleanup(); // It terminates use of the winsock library (Ws2_32.dll).
 	return 0;
 }
@@ -194,6 +278,7 @@ CLIENT* ClientCreate()
 
 	client->login = NULL;
 	client->status = offline;
+	client->group_id = 0;
 
 	return client;
 }
@@ -228,7 +313,7 @@ void ReceiveData(CLIENT* client, char* data)
 	// Receive the answer from server
 	memset(data, 0, MAX_DATA_SIZE);
 	int ret = recv(client->socket, data, MAX_DATA_SIZE, 0);
-	if (ret == 0 || ret == WSAECONNRESET)
+	if (ret <= 0 || ret == WSAECONNRESET)
 		printf("Connection closed\n");
 }
 
@@ -243,7 +328,7 @@ void Registration(CLIENT* client)
 	char* passw = (char*)calloc(MAX_PASSW_SIZE + 1, sizeof(char));
 	if (!passw) exit(EXIT_FAILURE);
 
-	printf("Registration\n");
+	printf("\nRegistration\n");
 	strcat(data, "<__register__> login: ");
 	printf("| login: ");
 	strcat(data, gets_s(login, MAX_LOGIN_SIZE));
@@ -273,7 +358,7 @@ void SignIn(CLIENT* client)
 	char* passw = (char*)calloc(MAX_PASSW_SIZE + 1, sizeof(char));
 	if (!passw) exit(EXIT_FAILURE);
 
-	printf("Sign in\n");
+	printf("\nSign in\n");
 	strcat(data, "<__signin__> login: ");
 	printf("| login: ");
 	strcat(data, gets_s(login, MAX_LOGIN_SIZE));
@@ -316,20 +401,50 @@ void SignOut(CLIENT* client)
 	client->login = NULL;
 }
 
+void Groups(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+	strcat(data, "<__get_groups__>");
+
+	SendData(client, data);
+	ReceiveData(client, data);
+
+	printf("%s\n", data);
+	free(data);
+}
+
+void ChangeGroup(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+	strcat(data, "<__set_group__> id: ");
+
+	char* id_str = (char*)calloc(5, sizeof(char));
+	if (!id_str) exit(EXIT_FAILURE);
+
+	printf("Change group id (1-128): ");
+	strcat(data, gets_s(id_str, 4));
+	printf("\n");
+
+	SendData(client, data);
+	client->group_id = ConvertStrToInt(id_str);
+
+	free(id_str);
+}
+
 
 void SendMessageToCurrentUser(CLIENT* client)
 {
 	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
 	if (!data) exit(EXIT_FAILURE);
 
-	strcat(data, "<__message_current_user__> from: ");
-	strcat(data, client->login);
-	strcat(data, " to: ");
+	strcat(data, "<__message_current_user__> to: ");
 
 	char* recv_login = (char*)calloc(MAX_LOGIN_SIZE + 1, sizeof(char));
 	if (!recv_login) exit(EXIT_FAILURE);
 
-	printf("Send message\n");
+	printf("\nSend message to user\n");
 	printf("| receiver: ");
 	strcat(data, gets_s(recv_login, MAX_LOGIN_SIZE));
 
@@ -350,21 +465,87 @@ void SendMessageToCurrentUser(CLIENT* client)
 	free(data);
 }
 
-
-void GetNewMessages(CLIENT* client)
+void SendMessageToGroup(CLIENT* client)
 {
-	// big buffer for all the new messages
-	char* data = (char*)calloc(MAX_DATA_SIZE*MAX_DATA_SIZE, sizeof(char));
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
 	if (!data) exit(EXIT_FAILURE);
 
-	int f = 1;
-	ioctlsocket(client->socket, FIONBIO, &f);
+	strcat(data, "<__message_group__> id: ");
 
+	char id[4] = "";
+	strcat(data, itoa(client->group_id, &id, 10));
+
+	printf("\nSend message to group #%d\n", client->group_id);
+
+	char* message = (char*)calloc(MAX_MESS_SIZE + 1, sizeof(char));
+	if (!message) exit(EXIT_FAILURE);
+
+	strcat(data, " mes: ");
+	printf("| message: ");
+	strcat(data, gets_s(message, MAX_MESS_SIZE));
+
+	SendData(client, data);
 	ReceiveData(client, data);
 
-	f = 0;
-	ioctlsocket(client->socket, FIONBIO, &f);
+	printf("\n%s\n\n", data);
 
-	printf("%s\n", data);
+	free(message);
 	free(data);
+}
+
+
+void GetMessages(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+	strcat(data, "<__get_messages__>");
+
+	SendData(client, data);
+	ReceiveData(client, data);
+
+	char* message = strtok(data, "|\n");
+	while (message)
+	{
+		message = strtok(NULL, "|\n");
+		printf("%s\n", message);
+		message = strtok(NULL, "|\n");
+	}
+
+	printf("\n");
+	free(data);
+}
+
+void GetGroupMessages(CLIENT* client)
+{
+	char* data = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!data) exit(EXIT_FAILURE);
+	strcat(data, "<__get_group_messages__>");
+
+	SendData(client, data);
+	ReceiveData(client, data);
+
+	char* message = strtok(data, "|\n");
+	while (message)
+	{
+		message = strtok(NULL, "|\n");
+		printf("%s\n", message);
+		message = strtok(NULL, "|\n");
+	}
+
+	printf("\n");
+	free(data);
+}
+
+
+int ConvertStrToInt(char* string)
+{
+	int N = 0, i = 0, c = 1;
+	if (*string == 45)
+	{
+		c = -1;
+		string++;
+	}
+	while ((int)string[i])
+		N = N * 10 + (int)string[i++] - 48;
+	return N * c;
 }

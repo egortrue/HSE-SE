@@ -21,7 +21,8 @@ typedef struct st_client
 	SOCKET socket;
 	SOCKADDR_IN address;
 
-	char* login;
+	char* login; // DeepWeb principle
+	int group_id; // For group chatting
 	unsigned char status : 1;
 	unsigned char connection : 1;
 }CLIENT;
@@ -38,7 +39,15 @@ void Registration(CLIENT* client);
 void SignIn(CLIENT* client);
 void SignOut(CLIENT* client);
 
+void Groups(CLIENT* client);
+void ChangeGroup(CLIENT* client);
+
 void SendMessageToCurrentUser(CLIENT* client);
-void GetNewMessages(CLIENT* client);
+void SendMessageToGroup(CLIENT* client);
+
+void GetMessages(CLIENT* client);
+void GetGroupMessages(CLIENT* client);
+
+int ConvertStrToInt(char* string);
 
 #endif

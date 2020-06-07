@@ -1,10 +1,13 @@
 ﻿#include "server.h"
 
-FILE* file_log;
-FILE* file_database;
-pthread_mutex_t mutex_cmd;
-pthread_mutex_t mutex_log;
-pthread_mutex_t mutex_db;
+FILE* file_log;      // common log of server's work
+FILE* file_database; // logins + passwords
+FILE* file_messages; // messages which wait to be sent
+
+pthread_mutex_t mutex_cmd; // mutex for server's console
+pthread_mutex_t mutex_log; // mutex for writing log
+pthread_mutex_t mutex_db;  // mutex for writing and reading database
+pthread_mutex_t mutex_mes; // mutex for writing and reading saved messages
 
 int main()
 {
@@ -13,11 +16,13 @@ int main()
 
 	file_log      = FileOpen("..\\src\\server\\data\\log.txt", "a");
 	file_database = FileOpen("..\\src\\server\\data\\database.txt", "a+");
+	file_messages = FileOpen("..\\src\\server\\data\\messages.txt", "a+");
 
 	// Init the access switchers
 	pthread_mutex_init(&mutex_cmd, NULL);
 	pthread_mutex_init(&mutex_log, NULL); 
 	pthread_mutex_init(&mutex_db,  NULL);
+	pthread_mutex_init(&mutex_mes,  NULL);
 
 	SERVER* server = ServerCreate();
 
@@ -27,6 +32,13 @@ int main()
 		printf("<server> ");
 		char command[51] = { 0 };
 		gets_s(command, 50);
+
+
+		// Write down to log server's commands
+		pthread_mutex_lock(&mutex_log);
+		fprintf(file_log, "<server> %s\n", command);
+		pthread_mutex_unlock(&mutex_log);
+
 
 		if (!strcmp(command, "help"))
 		{
@@ -52,7 +64,12 @@ int main()
 			if (server->status == started)
 			{
 				printf("Server is started\n");
-				printf("Clients online: %d\n\n", server->clients_online);
+				printf("Clients online: %d\n", server->clients_online);
+				printf("Clients: ");
+				for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
+					if (server->clients[i] != NULL && server->clients[i]->login != NULL)
+						printf("%s; ", server->clients[i]->login);
+				printf("\n\n");
 			}		
 			else
 				printf("Server is stopped\n\n");
@@ -93,6 +110,7 @@ int main()
 	ServerDestroy(server);
 
 	// Destroy the access switchers
+	pthread_mutex_destroy(&mutex_mes);
 	pthread_mutex_destroy(&mutex_db);
 	pthread_mutex_destroy(&mutex_log);
 	pthread_mutex_destroy(&mutex_cmd);
@@ -253,6 +271,7 @@ CLIENT* ClientCreate(SOCKET sock, SOCKADDR_IN sock_addr)
 	client->address = sock_addr;
 
 	client->login = NULL; // Client not enter in the DeepWeb yet.
+	client->group_id = 0; // Without group
 
 	return client;
 }
@@ -293,6 +312,8 @@ void* ClientRun(void* client_param_)
 
 		// Write down the log of receiving
 		pthread_mutex_lock(&mutex_log);
+		if (client->login)
+			fprintf(file_log, "%s: ", client->login);
 		fprintf(file_log, "%s\n", data_receive);
 		pthread_mutex_unlock(&mutex_log);
 
@@ -419,24 +440,21 @@ void* ClientRun(void* client_param_)
 		{	
 			free(client->login);
 			client->login = NULL;  // Client leave the DeepWeb
+			client->group_id = 0;
 			ServerDisconnectClient(server, client);
+			continue;
 		}
 
 		// Send a message to current user
-		// Example: "<__message_current_user__> from: Egor to: Captain_Jack mes: "hello, Jack""
+		// Example: "<__message_current_user__> to: Captain_Jack mes: hello, Jack!"
 		if (strstr(data_receive, "<__message_current_user__>"))
 		{
 
 			// Get both login and message data from received string
-			char* sender = strstr(data_receive, "from: ") + 6;
 			char* receiver = strstr(data_receive, "to: ") + 4;
 			char* message = strstr(data_receive, "mes: ") + 5;
-			int sender_len = (int)receiver - (int)sender - 5;
 			int receiver_len = (int)message - (int)receiver - 6;
 			int message_len = (int)strlen(message);
-
-			char* sender_login = (char*)calloc(sender_len + 1, sizeof(char));
-			if (!sender_login) exit(EXIT_FAILURE);
 
 			char* receiver_login = (char*)calloc(receiver_len + 1, sizeof(char));
 			if (!receiver_login) exit(EXIT_FAILURE);
@@ -444,67 +462,195 @@ void* ClientRun(void* client_param_)
 			char* message_data = (char*)calloc(message_len + 1, sizeof(char));
 			if (!message_data) exit(EXIT_FAILURE);
 
-			memcpy(sender_login, sender, sender_len);
 			memcpy(receiver_login, receiver, receiver_len);
 			memcpy(message_data, message, message_len);
 
-			char recv_err1[] = "Receiver not found";
-			char recv_err2[] = "Receiver is offline. Try later";
+			char recv_err[] = "Receiver not found";
+			char recv_recurs[] = "You can't send message to yourself!";
 			char good[] = "Receiver get your message!";
 		
-			// Find receiver in database
-			char* receiver_db = FindUserInDataBase(receiver_login);
+			if (!strcmp(client->login, receiver_login))
+			{
+				send(client->socket, recv_recurs, strlen(recv_recurs), 0);
+				free(receiver_login);
+				free(message_data);
+				continue;
+			}
 
+			// Find receiver in database
+			pthread_mutex_lock(&mutex_db);
+			char* receiver_db = FindUserInDataBase(receiver_login);
 			if (receiver_db != NULL)
 			{
-				CLIENT* receiver_data = NULL;
-				for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
-					if ((server->clients[i] != NULL) && (!strcmp(server->clients[i]->login, receiver_login)))
-						receiver_data = server->clients[i];
 
-				if (receiver_data != NULL)
-				{
-					char* data_for_receiver = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
-					if (!data_for_receiver) exit(EXIT_FAILURE);
+				char* data_for_receiver = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+				if (!data_for_receiver) exit(EXIT_FAILURE);
 
-					strcat(data_for_receiver, "New message from ");
-					strcat(data_for_receiver, sender_login);
-					strcat(data_for_receiver, ": ");
-					strcat(data_for_receiver, message_data);
-					strcat(data_for_receiver, "\n"); // for non-blocking type of recv() (command "get" in client)
+				strcat(data_for_receiver, "msg from ");
+				strcat(data_for_receiver, client->login);
+				strcat(data_for_receiver, " >> ");
+				strcat(data_for_receiver, message_data);
+				strcat(data_for_receiver, "\n");
 
-					send(receiver_data->socket, data_for_receiver, strlen(data_for_receiver), 0);
-					send(client->socket, good, strlen(good), 0);
-
-					free(data_for_receiver);
-				}
-				else
-				{
-					send(client->socket, recv_err2, strlen(recv_err2), 0);
-				}
+				// Write down the data in file_messages for message history
+				pthread_mutex_lock(&mutex_mes);
+				fprintf(file_messages, "%s|%s", receiver_login, data_for_receiver);
+				pthread_mutex_unlock(&mutex_mes);
+				send(client->socket, good, strlen(good), 0);
 
 				free(receiver_db);
+				free(data_for_receiver);
 			}
 			else
 			{
-				send(client->socket, recv_err1, strlen(recv_err1), 0);
+				send(client->socket, recv_err, strlen(recv_err), 0);
 			}
+			pthread_mutex_unlock(&mutex_db);
 
-			free(sender_login);
 			free(receiver_login);
 			free(message_data);
+			continue;
 		}
-		
 
-		// Send a message to group of users
-		if (strstr(data_receive, "<__message_group__>"))
+
+		// Get all personal messages which were sent to you
+		if (strstr(data_receive, "<__get_messages__>"))
 		{
 
+			pthread_mutex_lock(&mutex_mes);
+			char* messages = FindMessagesFor(client->login);
+			pthread_mutex_unlock(&mutex_mes);
+
+			send(client->socket, messages, strlen(messages), 0);
+			free(messages);
+			continue;
+		}
+
+
+		// Get list of all groups
+		if (strstr(data_receive, "<__get_groups__>"))
+		{
+			int count = 0;
+			int groups_id[129] = { 0 };
+			for (int i = 0; i < MAX_CLIENTS_ONLINE; i++)
+				if (server->clients[i] != NULL && server->clients[i]->group_id != 0)
+				{
+					groups_id[server->clients[i]->group_id] = 1;
+					count++;
+				}
+				
+
+			char* data = (char*)calloc(MAX_DATA_SIZE, sizeof(char));
+			if (!data) exit(EXIT_FAILURE);
+
+			if (count == 0)
+			{
+				strcat(data, "There are not active groups.\n");
+				send(client->socket, data, strlen(data), 0);
+				free(data);
+				continue;
+			}
+				
+			char id_str[3] = "";
+
+			for (int i = 1; i < 129; i++)
+				if (groups_id[i])
+				{
+					strcat(data, itoa(i, id_str, 10));
+					strcat(data, ": ");
+					for (int j = 0; j < MAX_CLIENTS_ONLINE; j++)
+						if (server->clients[j] != NULL && server->clients[j]->group_id == i)
+						{
+							strcat(data, server->clients[j]->login);
+							strcat(data, " ");
+						}
+					strcat(data, "\n");
+				}
+
+			send(client->socket, data, strlen(data), 0);
+			free(data);
+			continue;
+		}
+		
+		// Example: "<__set_group__> id: 112
+		if (strstr(data_receive, "<__set_group__>"))
+		{
+			char* id_ptr = strstr(data_receive, "id: ") + 4;
+			int id_len = strlen(id_ptr);
+
+			char* id_str = (char*)calloc(id_len + 1, sizeof(char));
+			if (!id_str) exit(EXIT_FAILURE);
+
+			memcpy(id_str, id_ptr, id_len);
+
+			int id = ConvertStrToInt(id_str);
+			client->group_id = id;
+
+			free(id_str);
+			continue;
+		}
+
+		// Send a message to group of users
+		// Example: "<__message_group__> id: 112 mes: hello, my team #112!"
+		if (strstr(data_receive, "<__message_group__>"))
+		{
+			// Get both login and message data from received string
+			char* id_ptr = strstr(data_receive, "id: ") + 4;
+			char* mes_ptr = strstr(data_receive, "mes: ") + 5;
+			int id_len = (int)mes_ptr - (int)id_ptr - 6;
+			int mes_len = (int)strlen(mes_ptr);
+
+			char* id_str = (char*)calloc(id_len + 1, sizeof(char));
+			if (!id_str) exit(EXIT_FAILURE);
+
+			char* message = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+			if (!message) exit(EXIT_FAILURE);
+			strcat(message, "msg from ");
+			strcat(message, client->login);
+			strcat(message, " >> ");
+
+			memcpy(id_str, id_ptr, id_len);
+			memcpy(message + strlen(message), mes_ptr, mes_len);
+
+			pthread_mutex_lock(&mutex_mes);
+			fprintf(file_messages, "<%s>|%s\n", id_str, message);
+			pthread_mutex_unlock(&mutex_mes);
+
+			char* data = (char*)calloc(MAX_DATA_SIZE, sizeof(char));
+			if (!data) exit(EXIT_FAILURE);
+			strcat(data, "You group message was successfully wrote.");
+
+			send(client->socket, data, strlen(data), 0);
+
+			free(data);
+			free(id_str);
+			free(message);
+			continue;
+		}
+
+		// Get all personal messages which were sent to your group
+		if (strstr(data_receive, "<__get_group_messages__>"))
+		{
+			char* id_str = (char*)calloc(7, sizeof(char));
+			if (!id_str) exit(EXIT_FAILURE);
+			strcat(id_str, "<");
+			char id[4] = "";
+			strcat(id_str, itoa(client->group_id, &id, 10));
+			strcat(id_str, ">");
+
+			pthread_mutex_lock(&mutex_mes);
+			char* messages = FindMessagesFor(id_str);
+			pthread_mutex_unlock(&mutex_mes);
+
+			send(client->socket, messages, strlen(messages), 0);
+			free(messages);
+			continue;
 		}
 
 	}
 
 	// Stop the thread
+	ServerDisconnectClient(server, client);
 	ClientDestroy(client);
 	return NULL;
 }
@@ -520,8 +666,8 @@ char* FindUserInDataBase(char* login)
 	// Go to the begin of file
 	fseek(file_database, 0, SEEK_SET);
 
-	// Buffer for checking
-	char* string = (char*)calloc(MAX_DATA_SIZE, sizeof(char));
+	// Buffer for reading
+	char* string = (char*)calloc(MAX_DATA_SIZE+1, sizeof(char));
 	if (!string) exit(EXIT_FAILURE);
 
 	// Address of "|" in string
@@ -562,6 +708,63 @@ char* FindUserInDataBase(char* login)
 }
 
 
+char* FindMessagesFor(char* login)
+{
+	// Size of file
+	fseek(file_messages, 0, SEEK_END);
+	int file_size = ftell(file_messages);
+
+	// Go to the begin of file
+	fseek(file_messages, 0, SEEK_SET);
+
+	char* messages = (char*)calloc(file_size, sizeof(char));
+	if (!messages) exit(EXIT_FAILURE);
+
+	// Buffer for reading
+	char* string = (char*)calloc(MAX_DATA_SIZE + 1, sizeof(char));
+	if (!string) exit(EXIT_FAILURE);
+
+	// Address of "|" in string
+	char* separator = NULL;
+
+	while (1)
+	{
+
+		// If the end of file
+		if (ftell(file_messages) == file_size)
+		{
+			free(string);
+			break;
+		}
+
+		// Clear the string which was before
+		memset(string, 0, MAX_DATA_SIZE);
+
+		// Read a string from file
+		fgets(string, MAX_DATA_SIZE, file_messages);
+
+		// Find the address of separator
+		separator = strchr(string, '|');
+		if (separator == NULL)
+		{
+			free(string);
+			break;
+		}
+
+		// Set zero on separator's place for string compare
+		memset(separator, 0, 1);
+
+		if (!strcmp(login, string))
+		{
+			memset(separator, '|', 1);
+			strcat(messages, string);
+		}
+	}
+
+	return messages;
+}
+
+
 FILE* FileOpen(const char* name, const char* mode)
 {
 	FILE* file;
@@ -578,6 +781,20 @@ FILE* FileOpen(const char* name, const char* mode)
 		exit(EXIT_FAILURE);
 	}
 	return file;
+}
+
+
+int ConvertStrToInt(char* string)
+{
+	int N = 0, i = 0, c = 1;
+	if (*string == 45)
+	{
+		c = -1;
+		string++;
+	}
+	while ((int)string[i])
+		N = N * 10 + (int)string[i++] - 48;
+	return N * c;
 }
 
 //=================================================================================

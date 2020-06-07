@@ -14,7 +14,6 @@
 #include <stdio.h>
 
 enum server_status {stopped, started};
-enum client_status {offline, online};
 
 //===========================================================
 
@@ -25,6 +24,7 @@ typedef struct st_client
 	pthread_t thread;
 
 	char* login; // DeepWeb principle
+	int group_id; // for group chatting
 }CLIENT;
 
 CLIENT* ClientCreate  (SOCKET sock, SOCKADDR_IN sock_addr);
@@ -60,5 +60,7 @@ void ServerDisconnectClient (SERVER* server, CLIENT* client);
 
 FILE* FileOpen (const char* name, const char* mode);
 char* FindUserInDataBase(char* login);
+char* FindMessagesFor(char* login);
+int ConvertStrToInt(char* string);
 
 #endif
