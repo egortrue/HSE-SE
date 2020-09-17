@@ -14,8 +14,12 @@ do
 		elif [[ $action = "sccissors" ]]
 		then
 			rand=0
-		else
+		elif [[ $action = "paper" ]]
+		then
 			rand=1
+		else
+			echo "Wrong choice"
+			continue
 		fi
 	else
 		rand=$((RANDOM%3))
