@@ -10,10 +10,14 @@ class Fraction:
 
     def toFraction(self, other):
         if type(self) != type(other):
-            other = Fraction(other, 1)
+            if type(other) == int:
+                other = Fraction(other, 1)
+            elif type(other) == float:
+                after_dot = str(other).split('.')[1]
+                other = Fraction(int(other * (10 ** len(after_dot))), 10 ** len(after_dot))
         return other
 
-    def __init__(self, numerator, denominator):
+    def __init__(self, numerator: int, denominator: int):
         if denominator == 0:
             raise ZeroDivisionError
         self.numerator = numerator
@@ -22,6 +26,15 @@ class Fraction:
 
     def __str__(self):
         return f"{self.numerator}/{self.denominator}"
+
+    def __float__(self):
+        return self.numerator / self.denominator
+
+    def __int__(self):
+        return int(float(self))
+
+    def __round__(self, n=None):
+        return Fraction(1, 1) * round(float(self), n)
 
 ##################################################################
 
@@ -32,6 +45,12 @@ class Fraction:
 
     def __radd__(self, other):
         return self + other
+
+    def __iadd__(self, other):
+        other = self.toFraction(other)
+        self.numerator = self.numerator * other.denominator + other.numerator * self.denominator
+        self.denominator *= other.denominator
+        return self
 
 ##################################################################
 
@@ -45,6 +64,12 @@ class Fraction:
         return Fraction(other.numerator * self.denominator - self.numerator * other.denominator,
                         self.denominator * other.denominator)
 
+    def __isub__(self, other):
+        other = self.toFraction(other)
+        self.numerator = self.numerator * other.denominator - other.numerator * self.denominator
+        self.denominator *= other.denominator
+        return self
+
 ##################################################################
 
     def __mul__(self, other):
@@ -53,6 +78,12 @@ class Fraction:
 
     def __rmul__(self, other):
         return self * other
+
+    def __imul__(self, other):
+        other = self.toFraction(other)
+        self.numerator *= other.numerator
+        self.denominator *= other.denominator
+        return self
 
 ##################################################################
 
@@ -64,46 +95,78 @@ class Fraction:
         other = self.toFraction(other)
         return Fraction(other.numerator * self.denominator, other.denominator * self.numerator)
 
+    def __itruediv__(self, other):
+        other = self.toFraction(other)
+        self.numerator *= other.denominator
+        self.denominator *= other.numerator
+        return self
+
 ##################################################################
 
-    def __pow__(self, power, modulo=None):
+    def __pow__(self, power):
         return Fraction(self.numerator ** power, self.denominator ** power)
+
+    def __ipow__(self, power):
+        self.numerator **= power
+        self.denominator **= power
+        return self
 
 ##################################################################
 
     def __lt__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator < other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) < other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator < other.numerator * self.denominator
 
     def __le__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator <= other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) <= other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator <= other.numerator * self.denominator
 
     def __eq__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator == other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) == other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator == other.numerator * self.denominator
 
     def __ne__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator != other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) != other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator != other.numerator * self.denominator
 
     def __gt__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator > other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) > other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator > other.numerator * self.denominator
 
     def __ge__(self, other):
-        other = self.toFraction(other)
-        return True if (self.numerator * other.denominator >= other.numerator * self.denominator) else False
+        if type(other) == float:
+            return float(self) >= other
+        else:
+            other = self.toFraction(other)
+            return self.numerator * other.denominator >= other.numerator * self.denominator
 
 
-print(" 1)", Fraction(9, 21), '\n')
+a = Fraction(22, 7)
+print(f" 0) {a} | {float(a)} | {int(a)} | {round(a, 2)} | {float(round(a, 2))}")
+
+a = Fraction(9, 21)
+print(f" 1) {a == 9/21} -> {a} == {9/21}\n")
 
 a = Fraction(3, 2)
-print(" 2)", a + 2, " == ", 2 + a)
-print(" 3)", a - 2, " != ", 2 - a)
-print(" 4)", a * 2, " == ", 2 * a)
-print(" 5)", a / 2, " != ", 2 / a)
-print(" 6)", a ** 3, '\n')
+print(f" 2) {a + 2.5} == {2.5 + a}")
+print(f" 3) {a - 2.5} != {2.5 - a}")
+print(f" 4) {a * 2.5} == {2.5 * a}")
+print(f" 5) {a / 2.5} != {2.5 / a}\n")
 
 a = Fraction(4, 2)
 print(f" 7) {a < 2} -> {a} < 2")
