@@ -101,3 +101,35 @@ ___Создадим пустой файл и новую поддиректори
 ___На нашей веб-странице и в файловой системе Linux также отображаются новые файлы:___<br>
 <img src="img/hello_page.png">
 <img src="img/hello_linux.png">
+
+___Дополнительное задание:___<br>
+В корне сервера создадим пустой файл размером 100MiB:<br>
+`cd /server`<br>
+`sudo dd if=/dev/zero of=iso count=102400 bs=1024`<br>
+<img src="img/create_iso.png">
+
+Сделаем из него образ файловой системы:<br>
+`sudo mkfs.ext4 iso`<br>
+<img src="img/mkfs.png">
+
+Создадим в гостевой папке точку монтирования и примонтируем новый образ:<br>
+`cd /server/guest`<br>
+`mkdir iso_dir`<br>
+`sudo mount -o loop /server/iso iso_dir/`<br>
+
+Проверим точку монтирования:<br>
+<img src="img/mount.png">
+
+Сменим владельца:<br>
+`sudo chown -R nobody:nogroup /server/guest/iso_dir`
+
+Добавим создание бекапа нашего образа, используя cron:<br>
+`sudo mkdir /server/backups`<br>
+`sudo crontab -e`
+
+В конец файла конфигурации cron добавим следующее:<br>
+- Бекап в новый год
+`0 0 1 1 * dd if=/server/iso of=/server/backups/$(date) count=102400 bs=1024 `
+- Бекап в пятницу 13го
+`0 0 13 * 5 dd if=/server/iso of=/server/backups/$(date) count=102400 bs=1024 `
+<img src="img/cron.png">
