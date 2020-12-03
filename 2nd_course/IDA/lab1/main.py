@@ -29,14 +29,10 @@ book = db.Book()
 
 
 def clearScreen():
-	'''
 	if os.name == "nt":
 		os.system("cls")
 	else
 		os.system("clear")
-	'''
-	os.system("cls")
-	os.system("clear")
 	print(title)
 
 
