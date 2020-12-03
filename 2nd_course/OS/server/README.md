@@ -128,8 +128,8 @@ ___Дополнительное задание:___<br>
 `sudo crontab -e`
 
 В конец файла конфигурации cron добавим следующее:<br>
-- Бекап в новый год
-`0 0 1 1 * dd if=/server/iso of=/server/backups/$(date) count=102400 bs=1024 `
-- Бекап в пятницу 13го
-`0 0 13 * 5 dd if=/server/iso of=/server/backups/$(date) count=102400 bs=1024 `
+- Бекап в новый год<br>
+`0 0 1 1 * dd if=/server/iso of="/server/backups/$(date)" count=102400 bs=1024 `
+- Бекап в пятницу 13го<br>
+`0 0 13 * 5 dd if=/server/iso of="/server/backups/$(date)" count=102400 bs=1024 `
 <img src="img/cron.png">
