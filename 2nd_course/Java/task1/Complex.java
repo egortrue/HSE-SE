@@ -73,7 +73,7 @@ public class Complex {
         String z = String.format("%.2f", z_);
 
         double alpha_;
-        if (this.re != 0.0)
+        if (this.re != 0.0)   //don't compare doubles in such way, use {} in if statements
             alpha_ = Math.toDegrees(Math.atan(im/re));
         else
             alpha_ = 0;
