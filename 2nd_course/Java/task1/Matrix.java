@@ -48,7 +48,7 @@ public class Matrix {
     }
 
     public void setData(double[][] data) {
-        if (!this.isConvenient(data.length)) return;
+        if (!this.isConvenient(data.length)) return;   //you don't need to use this inside the class
         for (int row = 0; row < this.size; row++) {
             for (int col = 0; col < this.size; col++)
                 this.data[row][col] = new Complex(data[row][col]);
