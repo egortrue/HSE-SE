@@ -1,0 +1,40 @@
+File: data/lorem.txt
+Total count of chars: 2763
+
+whitespace : 410
+, : 34
+. : 56
+A : 8
+C : 1
+D : 2
+E : 3
+I : 2
+L : 1
+M : 6
+N : 17
+P : 5
+S : 7
+U : 2
+V : 2
+a : 202
+b : 24
+c : 97
+d : 62
+e : 271
+f : 18
+g : 21
+h : 14
+i : 213
+j : 3
+l : 132
+m : 115
+n : 158
+o : 86
+p : 53
+q : 30
+r : 103
+s : 199
+t : 173
+u : 201
+v : 26
+x : 6
