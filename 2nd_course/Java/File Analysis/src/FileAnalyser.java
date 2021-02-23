@@ -15,18 +15,13 @@ public class FileAnalyser {
         data = new int[128];
     }
 
-    public void run() {   
-        try {      
-            openInputFile();
-            readInputFile();
-            analizeData();
-            createOutputData();
-            openOutputFile();
-            writeOutputFile();
-        }
-        catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }  
+    public void run() throws Exception {   
+        openInputFile();
+        readInputFile();
+        analizeData();
+        createOutputData();
+        openOutputFile();
+        writeOutputFile();
     }
 
     private void openInputFile() throws Exception {
