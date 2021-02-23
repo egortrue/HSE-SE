@@ -1,8 +1,4 @@
-package task1;
-import java.util.Random;
 
-// Хотел использовать шаблонный класс, но не удалось его правильно реализовать
-// Довольно таки сильно отличается от того, как это делается в c++
 public class Matrix {
     private int size;
     private Complex[][] data;
