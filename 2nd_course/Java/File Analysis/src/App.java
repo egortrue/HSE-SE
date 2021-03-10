@@ -6,9 +6,8 @@ public class App {
             System.out.print("Input a file name: ");
             FileAnalyser analysis = new FileAnalyser(input.nextLine(), "data/result.txt");
             analysis.run();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
-        } 
+        }
     }
 }

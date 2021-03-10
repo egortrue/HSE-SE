@@ -3,7 +3,7 @@ import java.io.*;
 public class FileAnalyser {
 
     String inputFileName, outputFileName;
-    String input = "", output = "";
+    StringBuilder input, output;
     int[] data;
 
     FileReader inputHandler;
@@ -12,10 +12,12 @@ public class FileAnalyser {
     FileAnalyser(String inputFileName, String outputFileName) {
         this.inputFileName = inputFileName;
         this.outputFileName = outputFileName;
-        data = new int[128];
+        input = new StringBuilder();
+        output = new StringBuilder();
+        data = new int[65536];
     }
 
-    public void run() throws Exception {   
+    public void run() throws Exception {
         openInputFile();
         readInputFile();
         analizeData();
@@ -39,14 +41,14 @@ public class FileAnalyser {
             handler.createNewFile();
         if (!handler.canWrite())
             throw new Exception("No write access permission");
-        outputHandler = new FileWriter(handler);      
+        outputHandler = new FileWriter(handler);
     }
 
     private void readInputFile() throws IOException {
         BufferedReader reader = new BufferedReader(inputHandler);
         String line = reader.readLine();
         while (line != null) {
-            input += line;
+            input.append(line);
             line = reader.readLine();
         }
         reader.close();
@@ -55,29 +57,30 @@ public class FileAnalyser {
 
     private void writeOutputFile() throws IOException {
         BufferedWriter writer = new BufferedWriter(outputHandler);
-        writer.write(output);
+        writer.write(output.toString());
         writer.close();
         outputHandler.close();
     }
 
     private void analizeData() {
         for (int position = 0; position < input.length(); position++) {
-            int char_code = (int)input.charAt(position);
+            int char_code = (int) input.charAt(position);
             data[char_code] += 1;
         }
-    }   
+    }
 
     private void createOutputData() {
-        output += "File: " + inputFileName + "\n";
-        output += "Total count of chars: " + input.length() + "\n\n";
-        for (int position = 0; position < 128; position++) {
-            if (data[position] == 0) continue;
-            if (position == 32) {
-                output += "whitespace" + " : " + data[position] + "\n";
+        output.append("File: " + inputFileName + "\n");
+        output.append("Total count of chars: " + input.length() + "\n\n");
+        for (int position = 0; position < 65536; position++) {
+            if (data[position] == 0)
+                continue;
+            if ((char) position == '\u0020') {
+                output.append("whitespace" + " : " + data[position] + "\n");
                 continue;
             }
-            char symbol = (char)position;
-            output += symbol + " : " + data[position] + "\n";
+            char symbol = (char) position;
+            output.append(symbol + " : " + data[position] + "\n");
         }
-    }   
+    }
 }
