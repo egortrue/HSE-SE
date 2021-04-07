@@ -1,3 +1,4 @@
+# Visual Studio
 /**/*.sln
 /**/*.vs
 /**/*.vcx*
@@ -5,3 +6,9 @@
 /**/Release/
 /**/x64/
 /**/x86/
+
+# VS Code
+/**/.vscode
+
+# CMake
+/**/build
