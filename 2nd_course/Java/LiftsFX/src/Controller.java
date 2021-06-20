@@ -15,9 +15,11 @@ public class Controller {
 
     // Первый подъезд
     public AnchorPane root1_elevator;
-    public Text root1_elevator_text;
     public AnchorPane root1_floor1, root1_floor2, root1_floor3;
     public AnchorPane root1_floor4, root1_floor5, root1_floor6;
+    public Text root1_elevator_text;
+    public Text root1_floor1_counter, root1_floor2_counter, root1_floor3_counter;
+    public Text root1_floor4_counter, root1_floor5_counter, root1_floor6_counter;
     // public ImageView root1_floor1_man1, root1_floor1_man2, root1_floor1_man3,
     // root1_floor1_man4;
     // public ImageView root1_floor2_man1, root1_floor2_man2, root1_floor2_man3,
@@ -33,12 +35,48 @@ public class Controller {
 
     // Второй подъезд
     public AnchorPane root2_elevator;
-    public Text root2_elevator_text;
     public AnchorPane root2_floor1, root2_floor2, root2_floor3;
     public AnchorPane root2_floor4, root2_floor5, root2_floor6;
+    public Text root2_elevator_text;
+    public Text root2_floor1_counter, root2_floor2_counter, root2_floor3_counter;
+    public Text root2_floor4_counter, root2_floor5_counter, root2_floor6_counter;
 
-    @FXML
-    private void buttonClicked() {
+    public void updateFloor(Passenger passenger, int action) {
+        Text floor = root1_floor1_counter;
+        if (passenger.lift.id == 1) {
+            if (passenger.source == 1)
+                floor = root1_floor1_counter;
+            else if (passenger.source == 2)
+                floor = root1_floor2_counter;
+            else if (passenger.source == 3)
+                floor = root1_floor3_counter;
+            else if (passenger.source == 4)
+                floor = root1_floor4_counter;
+            else if (passenger.source == 5)
+                floor = root1_floor5_counter;
+            else if (passenger.source == 6)
+                floor = root1_floor6_counter;
+        } else if (passenger.lift.id == 2) {
+            if (passenger.source == 1)
+                floor = root2_floor1_counter;
+            else if (passenger.source == 2)
+                floor = root2_floor2_counter;
+            else if (passenger.source == 3)
+                floor = root2_floor3_counter;
+            else if (passenger.source == 4)
+                floor = root2_floor4_counter;
+            else if (passenger.source == 5)
+                floor = root2_floor5_counter;
+            else if (passenger.source == 6)
+                floor = root2_floor6_counter;
+        }
+
+        int count = Integer.parseInt(floor.getText());
+        count += action;
+        floor.setText(Integer.toString(count));
+    }
+
+    public void buttonClicked() {
 
     }
 

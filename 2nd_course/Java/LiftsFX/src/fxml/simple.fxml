@@ -72,7 +72,7 @@
                      <children>
                         <AnchorPane fx:id="root1_floor6" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor6_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -106,7 +106,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root1_floor5" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor5_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -140,7 +140,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root1_floor4" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor4_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -174,7 +174,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root1_floor3" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor3_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -208,7 +208,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root1_floor2" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor2_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -242,7 +242,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root1_floor1" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root1_floor1_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -303,7 +303,7 @@
                      <children>
                         <AnchorPane fx:id="root2_floor6" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor6_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -337,7 +337,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root2_floor5" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor5_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -371,7 +371,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root2_floor4" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor4_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -405,7 +405,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root2_floor3" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor3_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -439,7 +439,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root2_floor2" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor2_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>
@@ -473,7 +473,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="root2_floor1" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
                            <children>
-                              <Text layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                              <Text fx:id="root2_floor1_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
                                  <font>
                                     <Font size="30.0" />
                                  </font>

@@ -1,18 +1,21 @@
 public class Passenger implements Runnable {
     int source;
     int destination;
-    Lift lift;
+    public Lift lift;
+    Controller controller;
 
-    Passenger(int source, int destination, Lift lift) {
+    Passenger(int source, int destination, Lift lift, Controller controller) {
         this.source = source;
         this.destination = destination;
         this.lift = lift;
+        this.controller = controller;
     }
 
     public void run() {
 
         // Вызываем лифт
         lift.pressExternalButton(source);
+        controller.updateFloor(this, 1);
 
         // Ждём лифт
         while (lift.currentFloor != source) {
@@ -36,6 +39,7 @@ public class Passenger implements Runnable {
         }
 
         // Вошли в лифт
+        controller.updateFloor(this, -1);
         lift.pressInternalButton(destination);
 
         // Едем на лифте

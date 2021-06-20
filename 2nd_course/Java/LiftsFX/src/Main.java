@@ -22,7 +22,8 @@ public class Main {
             Lift lift = lift1;
             if (r.nextInt(100) % 2 == 0)
                 lift = lift2;
-            Passenger passenger = new Passenger(r.nextInt(max_floor) + 1, r.nextInt(max_floor) + 1, lift);
+            Passenger passenger = new Passenger(r.nextInt(max_floor) + 1, r.nextInt(max_floor) + 1, lift,
+                    GUI.controller);
             Thread passenger_Thread = new Thread(passenger);
             passenger_Thread.start();
 
