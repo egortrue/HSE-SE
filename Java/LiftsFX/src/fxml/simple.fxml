@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox maxHeight="625.0" maxWidth="800.0" minHeight="625.0" minWidth="800.0" prefHeight="625.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="Menu">
+          <items>
+            <MenuItem fx:id="menu_start" mnemonicParsing="false" onAction="#buttonClicked" text="Start" />
+            <MenuItem mnemonicParsing="false" text="Stop" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <HBox fillHeight="false" maxHeight="600.0" maxWidth="400.0" minHeight="600.0" minWidth="400.0" prefHeight="600.0" prefWidth="400.0">
+               <children>
+                  <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="250.0">
+                     <children>
+                        <AnchorPane fx:id="root1_floor6" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root1_floor6_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root1_floor5" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root1_floor5_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="5" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root1_floor4" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root1_floor4_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="4" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root1_floor3" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root1_floor3_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="3" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root1_floor2" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root1_floor2_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root1_floor1" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root1_floor1_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </VBox>
+                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="150.0" style="-fx-background-color: #bbb;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Line endY="600.0" layoutX="75.0" />
+                        <AnchorPane fx:id="root1_elevator" layoutX="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="100.0" style="-fx-border-color: #000; -fx-border-radius: 5px; -fx-border-width: 3px; -fx-background-color: #aaa;">
+                           <children>
+                              <ImageView fitHeight="64.0" fitWidth="63.0" layoutX="19.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@img/elevator.png" />
+                                 </image>
+                              </ImageView>
+                              <Text fx:id="root1_elevator_text" layoutX="37.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0/4" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Text>
+                           </children></AnchorPane>
+                        <Line endY="600.0" layoutX="147.0" strokeWidth="3.0" />
+                     </children>
+                  </AnchorPane>
+               </children>
+            </HBox>
+            <HBox fillHeight="false" maxHeight="600.0" maxWidth="400.0" minHeight="600.0" minWidth="400.0" prefHeight="600.0" prefWidth="400.0">
+               <children>
+                  <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="250.0">
+                     <children>
+                        <AnchorPane fx:id="root2_floor6" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root2_floor6_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root2_floor5" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root2_floor5_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="5" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root2_floor4" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root2_floor4_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="4" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root2_floor3" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root2_floor3_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="3" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root2_floor2" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0">
+                           <children>
+                              <Text fx:id="root2_floor2_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="root2_floor1" maxHeight="100.0" maxWidth="250.0" minHeight="100.0" minWidth="250.0" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: #ddd;">
+                           <children>
+                              <Text fx:id="root2_floor1_counter" layoutX="188.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="62.5">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Text>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="132.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="106.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="80.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fitHeight="175.0" fitWidth="200.0" layoutX="54.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true" scaleX="0.3" scaleY="0.3" scaleZ="0.3">
+                                 <image>
+                                    <Image url="@img/man.png" />
+                                 </image>
+                              </ImageView>
+                              <Text layoutX="14.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="40.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </VBox>
+                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="150.0" style="-fx-background-color: #bbb;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Line endY="600.0" layoutX="75.0" />
+                        <AnchorPane fx:id="root2_elevator" layoutX="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="100.0" style="-fx-border-color: #000; -fx-border-radius: 5px; -fx-border-width: 3px; -fx-background-color: #aaa;">
+                           <children>
+                              <ImageView fitHeight="64.0" fitWidth="63.0" layoutX="19.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@img/elevator.png" />
+                                 </image>
+                              </ImageView>
+                              <Text fx:id="root2_elevator_text" layoutX="37.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0/4" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+  </children>
+</VBox>

@@ -1,0 +1,21 @@
+
+FOLDER TREE:
+
+[.\Folder]
+*---[folder1]
+|         *---[folder11]
+|         |         *---how are you.txt
+|         *---hi.txt
+*---[folder2]
+|         *---[folder21]
+|         |         *---test.txt
+|         *---[folder22]
+|         |         *---test.txt
+|         *---goodbye.txt
+|         *---lorem ipsum.txt
+*---[folder3]
+|         *---test.txt
+*---test.txt
+
+
+FILES IN THIS FOLDER: 8
