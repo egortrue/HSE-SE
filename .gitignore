@@ -15,3 +15,7 @@
 
 # Jet Brains
 /**/.idea/
+
+# Python
+/**/__pycache__/
+/**/.pytest_cache/
