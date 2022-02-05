@@ -1,0 +1,28 @@
+/* Сделать отступ первой строки у каждого абзаца текста (красная строка) */
+p {
+    text-indent: 20pt;
+}
+
+/* Добавить рамку у одного из изображений */
+#img_with_border {
+    border: solid 10px red;
+}
+
+/* Ограничить ширину статьи 900px */
+/* Выровнять статью по центру экрана (по горизонтали) */
+body {
+    width: 900px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Сделать точки у маркированного списка красными с помощью псевдоэлементов */ 
+ul {
+    list-style-type: none;
+}
+ul li::before {
+    color: red;
+    content: "•";
+    padding-right: 7px;
+}
