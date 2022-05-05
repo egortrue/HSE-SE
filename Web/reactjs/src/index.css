@@ -1,0 +1,105 @@
+/* TITLE */
+
+#main-title {
+    text-align: center;
+    font: italic small-caps bold 32px cursive;
+}
+
+/* MAIN TABLE */
+
+.table {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+/* LIST */
+
+.list {
+    width: 300px;
+    height: min-content;
+    margin: 6px;
+    background-color: rgb(231, 244, 255);
+    border: 3px solid black;
+    border-radius: 8px;
+}
+
+.list-title {
+    margin: 0px;
+    padding: 6px;
+
+    font-size: 26px;
+    text-align: center;
+
+    font: italic small-caps bold 20px cursive;
+    border-bottom: 3px solid black;
+}
+
+
+/* TASK */
+
+.task {
+    display: flex;
+    background-color: white;
+
+    border-radius: 4px;
+    margin: 16px;
+    padding: 10px;
+
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-active {
+    border: 2px solid black;
+}
+
+.task-input {
+    border: 2px dashed black;
+}
+
+.task-text {
+    font: italic lighter 16px cursive;
+    margin-right: 16px;
+}
+
+.task-input-text {
+    border: 0;
+}
+
+.task-input-text:focus {
+    outline: 0;
+}
+
+
+/* BUTTON */
+
+.button {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border: none;
+    background-color: white;
+}
+
+/* UTILS */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+div {
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+} 
