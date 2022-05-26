@@ -1,0 +1,9 @@
+.recipe-list {
+    height: max-content;
+    width: 20%;
+    display: block;
+    background-color: lightgray;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
