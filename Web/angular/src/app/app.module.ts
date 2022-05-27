@@ -1,23 +1,25 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app-routing.module';
 
-import { AppComponent } from './app.component';
-// Recipe's Components
+// Components
+import { RootComponent } from './root/root.component';
+import { HomeComponent } from './home/home.component';
+import { CartComponent } from './cart/cart.component';
 import { RecipeListComponent } from './recipe/recipe-list/recipe-list.component';
 import { RecipeDetailComponent } from './recipe/recipe-detail/recipe-detail.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    RootComponent,
+    HomeComponent,
+    CartComponent,
     RecipeListComponent,
-    RecipeDetailComponent
+    RecipeDetailComponent,
   ],
-  imports: [
-    BrowserModule,
-    FormsModule
-  ],
+  imports: [BrowserModule, FormsModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [RootComponent],
 })
-export class AppModule { }
+export class AppModule {}

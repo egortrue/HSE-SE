@@ -5,7 +5,7 @@ import { RECIPES } from '../recipe.data';
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.css']
+  styleUrls: ['./recipe-list.component.css'],
 })
 export class RecipeListComponent {
   selectedRecipe?: Recipe;
