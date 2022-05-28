@@ -1,0 +1,31 @@
+.card {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  width: 320px;
+  height: min-content;
+  cursor: pointer;
+  /* margin: 1em; */
+  box-shadow: 6px 6px 10px #121212;
+  color: white;
+  background-color: #121212;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translate(-3px, -3px);
+}
+
+img {
+  width: inherit;
+}
+
+#name {
+  font-size: 16px;
+  font-style: italic;
+
+  margin: 0;
+  padding: 0.5em;
+}

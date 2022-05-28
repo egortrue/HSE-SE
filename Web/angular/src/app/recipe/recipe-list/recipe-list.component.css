@@ -1,0 +1,15 @@
+h1,
+h2,
+h3 {
+  text-align: center;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.recipe {
+  margin: 1em;
+}

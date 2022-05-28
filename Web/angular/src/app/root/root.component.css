@@ -1,60 +1,70 @@
 header,
 footer {
-  background-color: rgb(150, 201, 216);
-  padding-top: 16px;
-  padding-bottom: 16px;
-  padding-left: 32px;
-  padding-right: 32px;
+  color: white;
+  background-color: #121212;
+  padding: 16px 12%;
+  margin: 0px;
   display: flex;
+}
+
+.content {
+  margin: 32px 16%;
+}
+
+a:any-link {
+  color: white;
 }
 
 /* ====================================================== */
 /* HEADER */
 
-header {
-  border-bottom: 4px solid black;
-}
-
 header .title {
   margin-left: 0;
   margin-right: auto;
   display: flex;
-  align-items: center;
+}
+
+header .title #name {
+  align-self: center;
+  font-size: 48px;
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-variant: small-caps;
+  text-decoration: none;
 }
 
 header nav {
   margin-left: auto;
   margin-right: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
 }
 
-header .title a {
-  font: italic small-caps bold 32px cursive;
-  text-decoration: none;
-}
-
 header nav a {
-  font-size: 22px;
-  margin-left: 30px;
-  padding: 8px;
+  font-size: 16px;
+  padding: 0.5em 1em;
+  margin-left: 16px;
+
+  border-bottom: 2px solid white;
   text-decoration: none;
-  border: 2px solid black;
-  border-radius: 8px;
-  background-color: whitesmoke;
+  transition: all 0.25s ease-in-out;
 }
 
 header nav a:hover {
-  transform: translateY(-1px);
+  color: #121212;
+  background-color: white;
+}
+
+header nav a:active {
+  transform: translateY(2px);
+  color: #121212;
+  border-color: lightgray;
   background-color: lightgray;
 }
 
 /* ====================================================== */
 /* FOOTER */
-
-footer {
-  border-top: 4px solid black;
-}
 
 footer .info {
   margin-left: 0;

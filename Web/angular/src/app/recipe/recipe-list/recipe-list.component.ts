@@ -8,10 +8,5 @@ import { RECIPES } from '../recipe.data';
   styleUrls: ['./recipe-list.component.css'],
 })
 export class RecipeListComponent {
-  selectedRecipe?: Recipe;
   recipes: Recipe[] = RECIPES;
-
-  onSelect(recipe: Recipe): void {
-    this.selectedRecipe = recipe;
-  }
 }
