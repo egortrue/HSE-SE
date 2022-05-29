@@ -1,3 +1,36 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:bfb2b481f95cb182ef110e6387c97f4b75d810a99e8980f9b83769a7116d0e9e
-size 1232
+<h1>Home Page</h1>
+<div class="home">
+  <div class="info">
+    <h3>Description</h3>
+    <p>
+      A cookbook, or cookery book, is kind of book that tells people how to
+      prepare food for eating using specific instructions called a recipe. Most
+      cookbooks also have tips on how to eat and present the food as well. They
+      usually list the ingredients needed, time needed to cook, and the
+      instructions. They may give other tips too.
+    </p>
+
+    <h3>Functionality</h3>
+    <p>Home page: <a routerLink="/home">here</a></p>
+    <p>All the recipes: <a routerLink="/recipes">here</a></p>
+    <p>Shopping cart: <a routerLink="/cart">here</a></p>
+    <i>All of the links above can be found on top of every page.</i>
+
+    <h3>Author</h3>
+    <b><i>Egor Trukhin</i></b>
+    <p>Group: <i>19PI-1</i></p>
+    <p>GitHub: <a href="https://github.com/egortrue">github.com/egortrue</a></p>
+    <p>Telegram: <a href="https://t.me/egortrue">t.me/egortrue</a></p>
+  </div>
+
+  <div class="recipes">
+    <div>
+      <h3>Best recipe</h3>
+      <app-recipe-card [id]="bestRecipeID"></app-recipe-card>
+    </div>
+    <div>
+      <h3>New recipe</h3>
+      <app-recipe-card [id]="newRecipeID"></app-recipe-card>
+    </div>
+  </div>
+</div>

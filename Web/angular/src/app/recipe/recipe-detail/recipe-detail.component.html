@@ -1,3 +1,24 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a4bc9a7cc234859cbe6f08af5c9d379e4d664a3c916e7ec8d3677dc5308f2a57
-size 603
+<h1>{{ recipe.name }}</h1>
+<div class="detail">
+  <div class="recipe">
+    <div class="products">
+      <h3>Products</h3>
+      <div
+        class="product"
+        *ngFor="let product of recipe.products"
+        (click)="cartService.add(product)"
+      >
+        <span class="name">{{ product.name }}</span>
+        <span class="mass">{{ product.mass }}g</span>
+      </div>
+      <p><i>click on product to add to the cart</i></p>
+    </div>
+
+    <img src="{{ recipe.image }}" alt="" />
+  </div>
+
+  <div class="description">
+    <h3>Description</h3>
+    <p>{{ recipe.description }}</p>
+  </div>
+</div>

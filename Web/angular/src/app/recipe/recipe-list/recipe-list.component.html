@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:00789c0f7135545358c70a4dafcdc3b8ebbaec72270261805109fa1ee7dab3e5
-size 211
+<h1>Available Recipes</h1>
+<div class="list">
+  <app-recipe-card
+    *ngFor="let recipe of recipes"
+    [id]="recipe.id"
+    class="recipe"
+  ></app-recipe-card>
+</div>
+<h3>There will be more recipes soon!</h3>

@@ -1,3 +1,27 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d09b5f842c28d47b7e7ff7a5d40db4f04f13dea537626e89851e70388bcb01d3
-size 577
+<header>
+  <div class="title">
+    <a id="name" routerLink="/">{{ title }}</a>
+  </div>
+  <nav>
+    <a routerLink="/home">Home</a>
+    <a routerLink="/recipes">Recipes</a>
+    <a routerLink="/cart">Cart</a>
+  </nav>
+</header>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>
+
+<footer>
+  <div class="info">
+    <a>{{ title }}</a>
+    <br />
+    <a>Egor Trukhin © 2022</a>
+  </div>
+  <div class="links">
+    <a href="https://github.com/egortrue">GitHub</a>
+    <br />
+    <a href="https://t.me/egortrue">Telegram</a>
+  </div>
+</footer>

@@ -1,3 +1,36 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:36beb2fc8ae88b9585dbb6f82b0c49a6c647fe9fe056917b99eae2b5e1c757eb
-size 936
+<h1>Shopping Cart</h1>
+<div class="cart">
+  <form (ngSubmit)="onSubmit(f)" #f="ngForm">
+    <div class="inputs">
+      <div class="input">
+        <label for="name">Name</label><br />
+        <input type="text" id="name" ngModel name="name" required />
+      </div>
+      <div class="input">
+        <label for="amount">Amount</label><br />
+        <input
+          type="number"
+          id="amount"
+          ngModel
+          name="amount"
+          required
+          pattern="^[1-9][0-9]*$"
+        />
+      </div>
+    </div>
+    <button type="submit">Add</button>
+  </form>
+
+  <div class="products">
+    <div
+      class="product"
+      *ngFor="let product of cartService.products; let i = index"
+      (click)="cartService.remove(i)"
+    >
+      <span class="name">{{ product.name }}</span>
+      <span class="mass">{{ product.mass }}g</span>
+    </div>
+  </div>
+
+  <p><i>click on product to remove from the cart</i></p>
+</div>
