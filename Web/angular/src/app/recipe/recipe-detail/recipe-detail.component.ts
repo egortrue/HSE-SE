@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 
 import { Recipe } from '../recipe.interface';
 import { RECIPES } from '../recipe.data';
-import { CartService } from 'src/app/cart/cart.service';
+import { CartService } from '../../cart/cart.service';
 
 @Component({
   selector: 'app-recipe-detail',
