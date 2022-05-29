@@ -11,8 +11,6 @@ export class RecipeCardComponent implements OnInit {
   @Input() id: number = 0;
   recipe!: Recipe;
 
-  constructor() {}
-
   ngOnInit(): void {
     this.recipe = RECIPES[this.id];
   }

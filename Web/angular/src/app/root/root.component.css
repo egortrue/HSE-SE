@@ -9,6 +9,8 @@ footer {
 
 .content {
   margin: 32px 16%;
+  color: #121212;
+  background-color: white;
 }
 
 a:any-link {

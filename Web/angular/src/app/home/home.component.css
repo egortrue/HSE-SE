@@ -1,3 +1,7 @@
+h1 {
+  text-align: center;
+}
+
 h3 {
   width: max-content;
   border-bottom: 2px solid #121212;
@@ -5,12 +9,13 @@ h3 {
 
 .home {
   display: flex;
+  margin-bottom: 64px;
 }
 
 .info {
   width: 50%;
-  /* margin-left: 0;
-  margin-right: auto; */
+  margin-left: 0;
+  margin-right: 32px;
 }
 
 .info p {

@@ -3,11 +3,10 @@
   justify-content: center;
   flex-wrap: wrap;
 
-  width: 320px;
+  width: 300px;
   height: min-content;
   cursor: pointer;
-  /* margin: 1em; */
-  box-shadow: 6px 6px 10px #121212;
+  box-shadow: 6px 6px 12px #121212;
   color: white;
   background-color: #121212;
 
