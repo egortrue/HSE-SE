@@ -51,12 +51,13 @@ static uint32_t cntr = 0;
 
 int main(const int argc, char* const argv[]) {
     // Parameters
-    if (argc != 3) {
-        printf("Usage: %s <input_filename> <thread count>\n", argv[0]);
+    if (argc != 4) {
+        printf("Usage: %s <input_filename> <output_filename> <thread_count>\n", argv[0]);
         return -1;
     }
     char* input_filename = argv[1];
-    thread_count = atoi(argv[2]);
+    char* output_filename = argv[2];
+    thread_count = atoi(argv[3]);
 
     read_file(input_filename);
 
@@ -69,12 +70,10 @@ int main(const int argc, char* const argv[]) {
     for (int thread = 0; thread < thread_count; ++thread) {
         thread_args[thread].index_start = chunk_size * thread;
         thread_args[thread].index_finish = chunk_size * (thread + 1);
-        printf("start = %d\n", thread_args[thread].index_start);
-        printf("finish = %d\n", thread_args[thread].index_finish);
     }
     thread_args[thread_count - 1].index_finish = particles_count;
 
-    FILE* file = fopen("../output", "w");
+    FILE* file = fopen(output_filename, "w");
     fprintf(file, "t,");
     for (int i = 0; i < particles_count; ++i) {
         fprintf(file, "x%d,y%d,", i, i);
@@ -107,9 +106,6 @@ int main(const int argc, char* const argv[]) {
     free(thread_args);
     free(thread_handles);
 
-    // Output
-    printf("Hello, \"app %s %d!\"\n", input_filename, thread_count);
-    printf("%.15lf %d %d\n", gravity, particles_count, steps);
     return 0;
 }
 
