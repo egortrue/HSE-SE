@@ -1,8 +1,6 @@
 
 
 #include "common.hpp"
-#include "matrix.hpp"
-#include "mpi.hpp"
 
 enum ALGORITHM {
     ROW,
@@ -138,6 +136,9 @@ void column_algorithm() {
     MPI_Reduce(local_result.data, result.data, N * N, MPI_DOUBLE, MPI_SUM, MPI::MAIN_PROCESS, MPI_COMM_WORLD);
 }
 
+void block_algorithm() {
+}
+
 double workflow() {
     if (MPI::processID == MPI::MAIN_PROCESS) {
         init();
@@ -150,6 +151,7 @@ double workflow() {
     else if (algorithm == COLUMN)
         column_algorithm();
     else if (algorithm == BLOCK) {
+        block_algorithm();
     }
 #ifdef DEBUG
     if (MPI::processID == MPI::MAIN_PROCESS) {
@@ -169,8 +171,7 @@ double workflow() {
 int main(int argc, char** argv) {
     // Параметры
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <matrix_size> "
-                  << "<algo_name>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <matrix_size> <algo_name>" << std::endl;
         return 1;
     }
     N = std::stoi(argv[1]);
@@ -182,7 +183,7 @@ int main(int argc, char** argv) {
     else if (algo == "block")
         algorithm = BLOCK;
     else {
-        std::cerr << "Algo name could be either row, column or block." << std::endl;
+        std::cerr << "<algo_name> could be either row, column or block." << std::endl;
         return 1;
     }
 
