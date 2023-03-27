@@ -1,6 +1,6 @@
 #pragma once
 
-// #define DEBUG
+#define DEBUG
 #define MIN_VALUE 1
 #define MAX_VALUE 5
 
