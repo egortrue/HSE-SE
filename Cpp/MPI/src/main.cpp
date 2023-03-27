@@ -112,7 +112,7 @@ void column_algorithm() {
     MPI_Bcast(local_matrixB.data, N * N, MPI_DOUBLE, MPI::MAIN_PROCESS, MPI_COMM_WORLD);
 
     //=====================================================================
-    // Локальное вычисление
+    // Локальное вычисление столбцов целевой матрицы
 
     Matrix local_result = Matrix(N, N);
     int col_start;
@@ -131,12 +131,71 @@ void column_algorithm() {
 #endif
 
     //=====================================================================
-    // Сложение результирующей матрицы
+    // Объединение локальных частей результирующей матрицы
 
     MPI_Reduce(local_result.data, result.data, N * N, MPI_DOUBLE, MPI_SUM, MPI::MAIN_PROCESS, MPI_COMM_WORLD);
 }
 
 void block_algorithm() {
+    //=====================================================================
+    // Разделить матрицу A по блокам
+    int block_size = N / MPI::processCount;
+    int block_size_extra = N % MPI::processCount;
+
+    // Буфер для локального блока матрицы A.
+    std::vector<double> local_blockA((block_size + (MPI::processID < block_size_extra ? 1 : 0)) * N);
+
+    // Рассчитать смещения и количества элементов для операции Scatter.
+    std::vector<int> displacements(MPI::processCount, 0);
+    std::vector<int> counts(MPI::processCount, 0);
+
+    for (int i = 0; i < MPI::processCount; ++i) {
+        displacements[i] = i * block_size * N + std::min(i, block_size_extra) * N;
+        counts[i] = block_size * N + (i < block_size_extra ? N : 0);
+    }
+
+    // Разослать матрицу A по всем процессам.
+    MPI_Scatterv(matrixA.data, counts.data(), displacements.data(), MPI_DOUBLE, local_blockA.data(), local_blockA.size(), MPI_DOUBLE, MPI::MAIN_PROCESS, MPI_COMM_WORLD);
+
+    //=====================================================================
+    // Передать матрицу B всем процессам.
+
+    Matrix local_matrixB = Matrix(N, N);
+    if (MPI::processID == MPI::MAIN_PROCESS)
+        local_matrixB = matrixB;
+    MPI_Bcast(local_matrixB.data, N * N, MPI_DOUBLE, MPI::MAIN_PROCESS, MPI_COMM_WORLD);
+
+    //=====================================================================
+    // Перемножение блоков
+
+    Matrix local_block = Matrix(block_size + (MPI::processID < block_size_extra ? 1 : 0), N);
+    for (int i = 0; i < local_block.rows; ++i) {
+        for (int j = 0; j < N; ++j) {
+            double sum = 0.0;
+            for (int k = 0; k < N; ++k) {
+                sum += local_blockA[i * N + k] * local_matrixB(k, j);
+            }
+            local_block(i, j) = sum;
+        }
+    }
+
+#ifdef DEBUG
+    std::cout << "Local Block " << local_block;
+#endif
+
+    //=====================================================================
+    // Объединение блоков
+
+    // Собрать все локальные блоки матрицы C на главном процессе.
+    Matrix local_result = Matrix(N, N);
+
+    // Рассчитать смещения и количества элементов для операции gatherv.
+    for (int i = 0; i < MPI::processCount; ++i) {
+        displacements[i] = i * block_size * N + std::min(i, block_size_extra) * N;
+        counts[i] = block_size * N + (i < block_size_extra ? N : 0);
+    }
+
+    MPI_Gatherv(local_block.data, local_block.size, MPI_DOUBLE, result.data, counts.data(), displacements.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 }
 
 double workflow() {
@@ -150,19 +209,18 @@ double workflow() {
         row_alogrithm();
     else if (algorithm == COLUMN)
         column_algorithm();
-    else if (algorithm == BLOCK) {
+    else if (algorithm == BLOCK)
         block_algorithm();
-    }
-#ifdef DEBUG
-    if (MPI::processID == MPI::MAIN_PROCESS) {
-        std::cout << "Global Result " << result;
-    }
-#endif
     MPI_Barrier(MPI_COMM_WORLD);  // Все потоки дождутся выполнения
     std::chrono::high_resolution_clock::time_point stop = std::chrono::high_resolution_clock::now();
 
     if (MPI::processID == MPI::MAIN_PROCESS) {
         std::chrono::duration<double, std::milli> ms = stop - start;
+
+#ifdef DEBUG
+        std::cout << "Global Result " << result;
+#endif
+
         return ms.count();
     }
     return -1;
